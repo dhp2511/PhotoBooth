@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% block global %}
+{%load static%}
+
+<div class="container global-search-ham  mt-2 d-flex justify-content-center align-items-center">
+    <div class="searchdiv d-flex justify-content-center align-items-center flex-column w-100">
+        <form action="" class="global-search  d-flex m-2" method="get">
+            <input class="form-control mr-sm-2 me-3" type="text"
+                style="background-color:#c1cae3; outline: none; color: rgb(0, 0, 0);"
+                placeholder="Search by category, description or username" aria-label="Search" name="searchImage"
+                autocomplete="off">
+            <button class=" d-flex align-items-center btn btn-outline-primary"
+                style="background-color: #4E576F; color: white;" type="submit">
+                <i class="fa-solid fa-magnifying-glass fa-lg" style="color: #ffffff;"></i></button>
+        </form>
+        {% if searchTerm %}
+        <div class="searchTerm">
+            <small>Results for: {{searchTerm}}</small>
+        </div>
+        {% endif %}
+    </div>
+</div>
+<div class="row global-papa mx-auto">
+    {% for photo in photos %}
+    {% if photo.publicAccess %}
+    <div class="col-6 col-sm-4 col-md-3 col-lg-2 my-2  h-100 global-item">
+        <div class="example-2 card my-2 h-100">
+            <div class="wrapper" style="background: url('{{ photo.image.url }}');">
+                <div class="data">
+                    <div class="content">
+                        <h6 class="title"><a href="{% url 'photo' photo.id %}">{{photo.category}}</a></h6>
+                        <div class="d-flex justify-content-start align-items-center">
+                            <div class="image-pfp"
+                                style="width: 30px; height: 30px; overflow: hidden; border-radius: 50%;">
+                                {% if photo.user.pfp.url is not None %}
+                                <img class="rounded user-pfp" alt="X" src="{{photo.user.pfp.url}}"
+                                    style="width: 100%; height: 100%; object-fit: cover;object-position: center;">
+                                {%else%}
+                                <img class="rounded user-pfp2" alt="X"
+                                    src="https://api.dicebear.com/7.x/adventurer/svg?skinColor=9e5622,763900,ecad80&seed={{photo.user.username}}&"
+                                    style="width: 100%; height: 100%; object-fit: cover;object-position: center;">
+                                {%endif%}
+                            </div>
+                            <span class="author ms-2 fs-5">{{photo.user}}</span>
+                        </div>
+
+
+                        <hr>
+                        <!-- <p class="text">{{photo.description| slice:"25"}}</p> -->
+                        <a href="{% url 'photo' photo.id %}" class="button">Check out</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    {% empty %}
+    <h3>No Public Photos yet..</h3>
+    {% endfor%}
+    <div class="d-flex justify-content-center pb-5"
+        hx-get="{% if searchTerm %}{% url 'global' %}?searchImage={{searchTerm}}&page={{page|add:1}}{% else %}{% url 'global' %}?page={{page|add:1}}{% endif %}"
+        hx-trigger="revealed" hx-target="this" hx-swap="outerHTML">
+        <div class="spinner-border " role="status">
+            <span class="sr-only">Loading</span>
+        </div>
+    </div>
+</div>
+
+
+
+{% endblock global %}

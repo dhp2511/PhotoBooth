@@ -1,0 +1,10 @@
+{% extends "register.html" %}
+
+{% block signup %}
+    <a href="{% url 'register' %}" class="btn btn-dark goback" style="position: absolute; top: 50px; left: 50px;">Go back</a>
+    <div class="email-confirm-message d-flex flex-column justify-content-center align-items-center">
+        <h3 class="text-white">Verify your email address to start using PhotoBooth!</h3>
+            <small>Link will expire in 10 hours!</small>
+        <a  class = "btn btn-danger" href="{% url 'request-new-link-from-email' %}">Resend Email</a> 
+    </div>
+{% endblock signup %}

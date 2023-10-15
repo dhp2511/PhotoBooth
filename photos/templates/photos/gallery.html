@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{%load static%}
+<div class="row">
+
+    {% block middle %}
+
+    <div class="row mx-auto">
+        {% for photo in photos%}
+        <div class="col-6 col-sm-4 col-md-3 col-lg-2 my-2 h-100">
+            <div class="example-2 card my-2 h-100">
+                <span class="photo-id" style="display: none;" data-id="{{ photo.id }}"></span>
+                <div class="wrapper" style="background: url('{{ photo.image.url }}');">
+                    <input type="checkbox" name="select" id=""
+                        style="position: absolute;top: 8px;right: 8px; width: 20px;height: 20px;">
+                    <div class="header">
+                        <div class="date">
+                            <span>{{photo.upload_datetime}}</span>
+                        </div>
+                    </div>
+                    <div class="data">
+                        <div class="content">
+                            <h6 class="title"><a href="{% url 'photo' photo.id %}">{{photo.category}}</a></h6>
+                            <!-- <span class="author fs-5">{{photo.user}}</span> -->
+                            <hr>
+                            <p class="text" style="display: none;">{{photo.description| slice:"25"}}</p>
+                            <a href="{% url 'photo' photo.id %}" class="button">Read more</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="d-flex flex-column justify-content-center align-items-center mt-5">
+            <h2 class="text-white text-center">Welcome to <strong style="color:#FED17E">Photo</strong> <strong
+                    style="color: #99D1C9;">Booth</strong></h2>
+            <h6 class="text-center text-white">Start Uploading image to your booth now!! Just click Add</h6>
+            <div class="x">
+                <img style="width: 300px; height: 300px;" src="{% static 'photos/icons/gallery_logo_svg.svg'%}" alt="X">
+            </div>
+
+        </div>
+
+        {% endfor%}
+        <div class="d-flex justify-content-center pb-5"
+            hx-get="{% if searchTerm %}{% url 'gallery' %}?searchImage={{searchTerm}}&page={{page|add:1}}{% elif category %}{% url 'gallery' %}?category={{category}}&page={{page|add:1}}{%else%}{% url 'gallery' %}?page={{page|add:1}}{% endif %}"
+            hx-trigger="revealed" hx-target="this" hx-swap="outerHTML" hx-trigger="htmx:afterSwap">
+            <div class="spinner-border " role="status">
+                <span class="sr-only">Loading</span>
+            </div>
+        </div> 
+
+    </div>
+
+
+    {% endblock middle %}
+
+</div>

@@ -1,0 +1,35 @@
+<ul class="list-group list-group-flush " style="background-color: #4E576F;">
+    <a class="list-group-item" href="{% url 'gallery' %}" style="background-color: #4E576F;color: white; font-size: 1.1vw;">
+        All
+    </a>
+    {% for category in categories %}
+    <div class="list-group-item d-flex justify-content-between " style="background-color: #4E576F;">
+        <a  style="text-decoration: none; color: white; width: 75%; font-size: 1.1vw; "
+            href="{% url 'gallery' %}?category={{ category.name }}">{{ category.name }}</a>
+        <button style="background: none; border: none; color: #DC3545;" data-bs-toggle="modal"
+            data-bs-target="#delCatModel_{{ category.id }}">
+            <i class="fas fa-trash fa-lg mb-1"></i>
+        </button>
+
+        <div class="modal fade" id="delCatModel_{{ category.id }}" tabindex="-1"
+            aria-labelledby="delCatModelLabel_{{ category.id }}" aria-hidden="true">
+            <div class="modal-dialog modal-sm modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h1 class="modal-title fs-5" id="delCatModelLabel_{{ category.id }}">Delete
+                            {{category.name}}</h1>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"
+                            aria-label="Close"></button>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary"
+                            data-bs-dismiss="modal">Close</button>
+                        <a href="{% url 'delete_category' category_id=category.id %}"
+                            class="btn btn-danger">Delete</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</ul>

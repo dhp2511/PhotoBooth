@@ -1,0 +1,33 @@
+{% extends "photos/register.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block head_title %}{% trans "Signup" %}{% endblock head_title %}
+
+{% block signup %}
+
+<form class="signup form_container" style="background-color: #4E576F;" id="signup_form" method="post"
+  action="{% url 'socialaccount_signup' %}">
+  {% csrf_token %}
+  <a href="{% url 'register' %}" style="position: absolute; top:50px; left: 50px;" class="btn btn-dark"> Back</a>
+  <div class="x">
+    <img style="width: 80px; height: 80px;" src="{% static 'photos/icons/gallery_logo_svg.svg'%}" alt="X">
+  </div>
+  <h4 class="text-white">Welcome to PhotoBooth!</h4>
+  <h5 class="text-white">{% trans "Set your Username" %}</h5>
+  <h6 class="text-white">{% trans "Username must be unique!" %}</h6>
+
+  {{ form.as_p }}
+
+
+  <button title="Sign In" type="submit" class="sign-in_btn" style="background-color: #99D1C9; color: black;">
+    <span>Confirm</span>
+  </button>
+</form>
+{% if form.non_field_errors %}
+{% for error in form.non_field_errors %}
+<div class="errorlist alert alert-danger">{{ error }}</li>
+  {% endfor %}
+  {% endif %}
+
+  {% endblock signup %}

@@ -1,0 +1,158 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+<div class="photo-wrapper" style="height: 100%; width: 100%;">
+
+    <div class="user-interact d-flex justify-content-between align-items-center flex-column "
+        style="height: 100%; width: 100%;">
+        <div class="desc_name p-2" style="height:100%; width: 100%;  overflow: hidden;">
+            <div class="user-info d-flex justify-content-between align-items-center mb-2">
+                <div class="d-flex justify-content-center align-items-center">
+                    <a href="{% url 'view_profile' photo.user.username %}">
+                        <div class="image-pfp mt-3 ms-3"
+                            style="width: 50px; height: 50px; overflow: hidden; border-radius: 50%;">
+                            {% if photo.user.pfp.url is not None %}
+                            <img class="rounded user-pfp" alt="X" src="{{photo.user.pfp.url}}"
+                                style="width: 100%; height: 100%; object-fit: cover;object-position: center;">
+                            {%else%}
+                            <img class="rounded user-pfp2" alt="X"
+                                src="https://api.dicebear.com/7.x/adventurer/svg?skinColor=9e5622,763900,ecad80&seed={{photo.user.username}}&"
+                                style="width: 100%; height: 100%; object-fit: cover;object-position: center;">
+                            {%endif%}
+                        </div>
+                    </a>
+                    <div class="username ms-3 mt-3" style="color: #FED17E; font-size: 5vw;">
+                        <strong>{{photo.user}}</strong>
+                    </div>
+                </div>
+                <div class="edit ms-3 mt-3">
+                    {%if photo.user == request.user %}
+                    <a type="button" name="edit-info-btn" href="{% url 'edit' photo.id %}"
+                        style="border: none; background:transparent;color: #000;">Edit
+                        <i class="fa-solid fa-pen-to-square fa-xl ms-2" style="color: #005eff;"></i>
+                    </a>
+                    {%endif%}
+                </div>
+            </div>
+
+            <div class="image">
+                <img style="width: revert-layer; height: 100%;border: 1px solid black; border-radius: 20%;"
+                    src="{{photo.image.url}}" class="card-img-top img-fluid rounded" alt="...">
+            </div>
+            <hr>
+            {% if photo.publicAccess %}
+            <div class="interact-buttons mt-3 d-flex justify-content-evenly align-items-center" style="height: 50%;">
+                <form action="{% url 'like_photo' photo.id %}" method="post">
+                    {% csrf_token %}
+                    <span class="text-white" style="font-size: 6vw;">{{photo.likes.count}}</span>
+                    <button type="submit" class="like-button" style="font-size: 6vw;">
+                        {% if request.user in photo.likes.all %}
+                        <i class="fa-solid fa-thumbs-up" style="color: #FED17E;"></i>
+                        {%else%}
+                        <i class="fa-regular fa-thumbs-up" style="color: white;"></i>
+                        {% endif %}
+                    </button>
+                </form>
+
+                <div class="comms">
+                    <span class="text-white" style="font-size: 6vw;">{{photo.comments.count}}</span>
+                    <button type="submit" class="comment-button" style="font-size: 6vw;">
+                        <i class="fa-regular fa-comment" aria-hidden="true" style="color: white;"></i>
+                    </button>
+                </div>
+                <button class="share-button text-white" style="font-size: 6vw;"> <i class="fa fa-share"
+                        aria-hidden="true"></i>
+                </button>
+                <a href="{% url 'download' photo.id %}" class="save-button text-white" style="font-size: 6vw;"> <i
+                        class="fa fa-download" aria-hidden="true"></i></a>
+
+            </div>
+            <div class="comments mt-2 ps-2" style="height: 100%; width: 100%; margin-bottom: 20%;">
+
+                <div class="description text-white">
+                    <small>Category: {{photo.category}}</small>
+                    <p style="font-size: 4vw;"><strong>Description:</strong> {{photo.description}}</p>
+                </div>
+                <hr>
+
+                {%for comment in comments%}
+                <div class="d-flex justify-content-between align-items-center ">
+                    <div class="comment text-black d-flex">
+                        <a href="{% url 'view_profile' comment.user.username %}">
+                            <div class="image-pfp me-3"
+                                style="width: 40px; height: 40px; overflow: hidden; border-radius: 50%; background-color: #99D1C9;">
+                                {% if comment.user.pfp.url is not None %}
+                                <img class="rounded user-pfp" alt="X" src="{{comment.user.pfp.url}}"
+                                    style="width: 100%; height: 100%; object-fit: cover;object-position: center;">
+                                {%else%}
+                                <img class="rounded user-pfp2" alt="X"
+                                    src="https://api.dicebear.com/7.x/adventurer/svg?skinColor=9e5622,763900,ecad80&seed={{comment.user.username}}&"
+                                    style="width: 100%; height: 100%; object-fit: cover;object-position: center;">
+                                {%endif%}
+                            </div>
+                        </a>
+                        <div class="d-flex justify-content-center align-items-center ">
+                            <p style="color: white;font-size: 4vw;"><strong
+                                    style="color: #FED17E; font-size: 5vw;">{{comment.user}}:</strong>
+                                {{comment.text}}</p>
+                        </div>
+                    </div>
+                    {%if request.user == comment.user %}
+                    <a href="{% url 'delete_comment' comment.id %}" style="cursor: pointer;"> <i
+                            class="fa-solid fa-trash fa-sm" style="color: #ff4747;"></i></a>
+                    {%endif%}
+                </div>
+                {%endfor%}
+                {% if comments|length == 0 %}
+                <h4>No comments yet...</h4>
+                {%endif%}
+            </div>
+        </div>
+        <div class="interact d-flex flex-column" style="height:20%;width: 100%;">
+            <div class="comment-div"
+                style="height:8%;width: 100%; position: fixed; bottom: 0; background-color: #4E576F;">
+                <form class="d-flex justify-content-center align-items-center"
+                    action="{% url 'comment_photo' photo.id %}" class="comment-form " style="height: 100%; width: 100%;"
+                    method="post">
+                    {% csrf_token%}
+                    <input autocomplete="off" type="text" name="text" placeholder="Add a comment..."
+                        class="comment-input  mb-2 me-2" required
+                        style="background:transparent; outline: none; color: rgb(255, 255, 255); caret-color: white;">
+                    <button type="submit" class="comment-submit btn  mb-2 "
+                        style="background-color: #4E576F; color: white;">Post</button>
+                </form>
+            </div>
+            <script>
+                const inputElement = document.querySelector('.comment-input');
+                const buttonElement = document.querySelector('.comment-button');
+                buttonElement.addEventListener('click', function () {
+                    inputElement.focus();
+                })
+            </script>
+        </div>
+        {% else %}
+        <div class="d-flex justify-content-center align-items-center">
+
+            <div class="user-interact d-flex justify-content-center flex-column align-items-center m-2 p-3"
+                style="height: fit-content; width: 80%; border: 1px solid black; border-radius: 16px;">
+                <h2>Photo Details</h2>
+                <ul class="d-flex justify-content-start flex-column" style="list-style-type: none; font-size: 6vw;">
+                    <li>Name : </li>
+                    <li>Category: {{photo.category}} </li>
+                    <li>Date: {{photo.upload_datetime}} </li>
+                    <li>Status: Private</li>
+                    <li>
+                        <p>Description: {{photo.description}}</p>
+                    </li>
+
+                </ul>
+            </div>
+
+        </div>
+        {%endif%}
+
+
+
+    </div>
+</div>
+{%endblock%}
