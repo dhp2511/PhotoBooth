@@ -13,7 +13,7 @@ from .forms import MyCustomSocialSignupForm, RegistrationForm
 import re
 from django.contrib.auth import get_user_model
 from verify_email import send_verification_email
-
+from django.template import RequestContext
 User = get_user_model()
 
 
@@ -387,3 +387,12 @@ def delete_comment(request, pk):
         return redirect(previous_page)  
     else:
         return HttpResponse(status=403) 
+    
+    
+    
+
+def page_not_found(request,exception=None):
+    context = {}
+    response = render(request, "/404.html", context=context)
+    response.status_code = 404
+    return response

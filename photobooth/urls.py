@@ -21,6 +21,9 @@ from django.conf.urls.static import static
 from allauth.socialaccount.providers.google.views import oauth2_login, oauth2_callback
 from allauth.account.views import logout
 from django.contrib.auth import views as auth_views
+# from django.conf.urls import handler400
+
+
 urlpatterns = [
     path("admin/", admin.site.urls), 
     path("", include("photos.urls")),

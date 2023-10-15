@@ -31,16 +31,16 @@ load_dotenv()
 SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = False   
 
 
 ALLOWED_HOSTS = [
     "localhost",
     "127.0.0.1",
-    "photobooth.up.railway.app",
-    "https://photobooth.up.railway.app/"
+    "photobooth.up.railway.app/",
+    "https://photobooth.up.railway.app/",
 ]
-CSRF_TRUSTED_ORIGINS =['https://photobooth.up.railway.app/']
+CSRF_TRUSTED_ORIGINS = ["https://photobooth.up.railway.app/"]
 AUTH_USER_MODEL = "users.User"
 # Application definition
 
@@ -111,11 +111,11 @@ WSGI_APPLICATION = "photobooth.wsgi.application"
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
-        'NAME': 'railway',
-        'USER': 'postgres',
-        'PASSWORD': os.environ.get('PGPASSWORD'),
-        'HOST': os.environ.get('PGHOST'),
-        'PORT': os.environ.get('PGPORT'),
+        "NAME": "railway",
+        "USER": "postgres",
+        "PASSWORD": os.environ.get("PGPASSWORD"),
+        "HOST": os.environ.get("PGHOST"),
+        "PORT": os.environ.get("PGPORT"),
     }
 }
 
@@ -199,6 +199,11 @@ EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
 SOCIALACCOUNT_PROVIDERS = {
     "google": {
+        "APP": {
+            "client_id": os.environ.get("GOOGLE_CLIENT_ID"),
+            "secret": os.environ.get("GOOGLE_SECRET_KEY"),
+            "key": "",
+        },
         "SCOPE": [
             "profile",
             "email",

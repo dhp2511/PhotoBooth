@@ -1,6 +1,7 @@
-from django.shortcuts import render, get_object_or_404, redirect
+from django.shortcuts import render, get_object_or_404, redirect 
 from django.contrib.auth import logout
 from photos.models import Photo
+from django.template import RequestContext
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
@@ -66,3 +67,12 @@ def profile_delete(request):
         return redirect("/")
 
     return render(request, "users/profile_delete.html")
+
+
+
+# HTTP Error 400
+def page_not_found(request,exception=None):
+    context = {}
+    response = render(request, "/404.html", context=context)
+    response.status_code = 404
+    return response
