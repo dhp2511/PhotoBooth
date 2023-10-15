@@ -37,8 +37,9 @@ DEBUG = True
 ALLOWED_HOSTS = [
     "localhost",
     "127.0.0.1",
+    "photobooth.up.railway.app"
 ]
-
+CSRF_TRUSTED_ORIGINS =['photobooth.up.railway.app']
 AUTH_USER_MODEL = "users.User"
 # Application definition
 
