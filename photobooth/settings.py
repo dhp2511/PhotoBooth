@@ -37,8 +37,7 @@ DEBUG = False
 ALLOWED_HOSTS = [
     "localhost",
     "127.0.0.1",
-    "photobooth.up.railway.app/",
-    "https://photobooth.up.railway.app/",
+    "photobooth.up.railway.app",
 ]
 CSRF_TRUSTED_ORIGINS = ["https://photobooth.up.railway.app/"]
 AUTH_USER_MODEL = "users.User"
@@ -158,11 +157,13 @@ STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media/"
+
 DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
+
 CLOUDINARY_STORAGE = {
-    "CLOUD_NAME": os.getenv("CLOUDINARY_CLOUD_NAME"),
-    "API_KEY": os.getenv("CLOUDINARY_API_KEY"),
-    "API_SECRET": os.getenv("CLOUDINARY_API_SECRET"),
+    "CLOUD_NAME": os.environ.get("CLOUDINARY_CLOUD_NAME"),
+    "API_KEY": os.environ.get("CLOUDINARY_API_KEY"),
+    "API_SECRET": os.environ.get("CLOUDINARY_API_SECRET"),
 }
 
 # Default primary key field type
@@ -253,3 +254,36 @@ LOGIN_URL = "login"
 
 
 # https://whitenoise.readthedocs.io/en/stable/django.html#add-compression-and-caching-support
+
+# LOGGING = {
+#     'version': 1,
+#     'disable_existing_loggers': False,
+#     'formatters': {
+#         'verbose': {
+#             'format' : "[%(asctime)s] %(levelname)s [%(name)s:%(lineno)s] %(message)s",
+#             'datefmt' : "%d/%b/%Y %H:%M:%S"
+#         },
+#         'simple': {
+#             'format': '%(levelname)s %(message)s'
+#         },
+#     },
+#     'handlers': {
+#         'file': {
+#             'level': 'DEBUG',
+#             'class': 'logging.FileHandler',
+#             'filename': 'mysite.log',
+#             'formatter': 'verbose'
+#         },
+#     },
+#     'loggers': {
+#         'django': {
+#             'handlers':['file'],
+#             'propagate': True,
+#             'level':'DEBUG',
+#         },
+#         'MYAPP': {
+#             'handlers': ['file'],
+#             'level': 'DEBUG',
+#         },
+#     }
+# }
