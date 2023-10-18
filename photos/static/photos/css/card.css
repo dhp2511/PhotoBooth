@@ -41,7 +41,7 @@ a {
 
 .card .wrapper {
   background-color: #fff;
-  height: 250px ;
+  height: auto ;
   position: relative;
   overflow: hidden;
   box-shadow: 0 19px 38px rgba(0, 0, 0, 0.3), 0 15px 12px rgba(0, 0, 0, 0.2);

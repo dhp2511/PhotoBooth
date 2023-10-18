@@ -96,6 +96,20 @@
         .navbar.bg-dark {
             background-color: #4E576F !important;
         }
+
+        .global-item {
+            animation: fadeIn 1s ease-in;
+        }
+
+        @keyframes fadeIn {
+            0% {
+                opacity: 0;
+            }
+
+            100% {
+                opacity: 1;
+            }
+        }
     </style>
 </head>
 
@@ -332,6 +346,62 @@
             {% endif %}
             {% block content %}
             {% endblock content %}
+
+
+
+            {% if request.user_agent.is_pc and photo and request.resolver_match.url_name != 'edit' %}
+            <div class=" d-flex justify-content-center flex-column  align-items-center w-100 mt-3"
+                style="height: fit-content;">
+                <h5 class="text-white me-2">EXPLORE PHOTOS</h5>
+                <svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" fill="currentColor"
+                    class="bi bi-arrow-down-circle ms-5" viewBox="0 0 50 50">
+                    <path fill-rule="evenodd"
+                        d="M1 8a7 7 0 1 0 14 0A7 7 0 0 0 1 8zm15 0A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM8.5 4.5a.5.5 0 0 0-1 0v5.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V4.5z" />
+                </svg>
+
+            </div>
+
+            <div class="row global-papa mx-auto mt-2">
+                {% for photo in photos %}
+                {% if photo.publicAccess %}
+                <a class="col-6 col-sm-4 col-md-3 col-lg-2 my-2 h-100 global-item" href="{% url 'photo' photo.id %}"
+                    hx-boost="fadeIn">
+                    <div class="example-2 card my-2 h-100">
+                        <div class="wrapper" style="background: url('{{ photo.image.url }}');">
+                            <div class="data">
+                                <div class="content">
+                                    <h6 class="title text-white mb-2">{{photo.category}}</h6>
+                                    <div class="d-flex justify-content-start align-items-center">
+                                        <div class="image-pfp"
+                                            style="width: 30px; height: 30px; overflow: hidden; border-radius: 50%;">
+                                            {% if photo.user.pfp.url is not None %}
+                                            <img class="rounded user-pfp" alt="X" src="{{photo.user.pfp.url}}"
+                                                style="width: 100%; height: 100%; object-fit: cover;object-position: center;">
+                                            {%else%}
+                                            <img class="rounded user-pfp2" alt="X"
+                                                src="https://api.dicebear.com/7.x/adventurer/svg?skinColor=9e5622,763900,ecad80&seed={{photo.user.username}}&"
+                                                style="width: 100%; height: 100%; object-fit: cover;object-position: center;">
+                                            {%endif%}
+                                        </div>
+                                        <span class="author ms-2 fs-5">{{photo.user}}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+                {% endif %}
+                {% endfor%}
+
+                <div class="d-flex justify-content-center pb-5" hx-get="{% url 'photo' photo.id %}?page={{page|add:1}}"
+                    hx-trigger="revealed" hx-target="this" hx-swap="outerHTML">
+                    <div class="spinner-border " role="status">
+                        <span class="sr-only"></span>
+                    </div>
+                </div>
+            </div>
+
+            {%endif%}
         </div>
         {% endif %}
 
@@ -463,6 +533,10 @@
     var block = document.querySelector('.global-photo');
     if (currentURL.includes('/mobile_photo/')) {
         block.style.height = "inherit";
+
+    }
+    if (currentURL.includes('/edit/') || currentURL.includes('/add/') || currentURL.includes('/photo/')) {
+        document.querySelector('.top').style.display = "none";
     }
 </script>
 <script>
@@ -471,7 +545,7 @@
         var top = document.querySelector('.top')
         console.log(document.body.clientHeight, window.innerHeight)
 
-        if (document.body.clientHeight <= window.innerHeight ) {
+        if (document.body.clientHeight <= window.innerHeight) {
             if (top) top.style.display = "none";
         }
 

@@ -39,7 +39,7 @@ ALLOWED_HOSTS = [
     "127.0.0.1",
     "photobooth.up.railway.app",
 ]
-CSRF_TRUSTED_ORIGINS = ["https://photobooth.up.railway.app/"]
+CSRF_TRUSTED_ORIGINS = ["https://photobooth.up.railway.app/", "https://photobooth.up.railway.app"]
 AUTH_USER_MODEL = "users.User"
 # Application definition
 
@@ -118,11 +118,13 @@ DATABASES = {
     }
 }
 
-if "DATABASE_URL" in os.environ:
-    DATABASES["default"] = dj_database_url.config(
-        conn_max_age=500,
-        conn_health_checks=True,
-    )
+# if DEBUG == True:
+#     DATABASES = {
+#         "default": {
+#             "ENGINE": "django.db.backends.sqlite3",
+#             "NAME": BASE_DIR / "db.sqlite3",
+#         }
+#     }
 
 
 # Password validation

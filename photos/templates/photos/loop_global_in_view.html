@@ -20,6 +20,7 @@
                         </div>
                         <span class="author ms-2 fs-5">{{photo.user}}</span>
                     </div>
+
                 </div>
             </div>
         </div>
@@ -29,7 +30,7 @@
 {% endfor%}
 
 <div class="d-flex justify-content-center pb-5"
-    hx-get="{% if searchTerm %}{% url 'global' %}?searchImage={{searchTerm}}&page={{page|add:1}}{% else %}{% url 'global' %}?page={{page|add:1}}{% endif %}"
+    hx-get="{% url 'photo' photo.id %}?page={{page|add:1}}"
     hx-trigger="revealed" hx-target="this" hx-swap="outerHTML">
     <div class="spinner-border " role="status">
         <span class="sr-only"></span>

@@ -2,7 +2,7 @@
 {% load static %}
 {% block content %}
 
-<div class="photo-wrapper d-flex justify-content-evenly" style='height:100% ;width:100%'>
+<div class="photo-wrapper d-flex justify-content-evenly" style='height:90% ;width:100%'>
     {% if photo.publicAccess %}
     <div class="main-photo" style="height: 100%; width:65%">
         <div style="height: 90%; position: relative; width: 100%;">
@@ -17,12 +17,12 @@
 
         </div>
 
-        <div style="height: 5%;">
+        <div style="height: 5%; padding-top:2%;">
             <div class="photo-info d-flex justify-content-between ps-5 pe-5 pt-2" style="font-size: 1.1vw;">
-                <div class="toast align-items-center text-bg-primary border-0 " role="alert" aria-live="assertive"
-                    aria-atomic="true">
+                <div class="toast align-items-center border-0 " style="background-color:#4E576F;" role="alert"
+                    aria-live="assertive" aria-atomic="true">
                     <div class="d-flex z-3">
-                        <div class="toast-body">
+                        <div class="toast-body text-white">
                             Link copied to clipboard!
                         </div>
                         <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"
@@ -110,7 +110,8 @@
         </div>
 
         <div class="interact d-flex flex-column p-2" style="height:20%;width: 100%;">
-            <div class="interact-buttons mt-3 d-flex justify-content-evenly align-items-center" style="height: 50%;">
+            <div class="interact-buttons mt-3 d-flex justify-content-evenly align-items-center mb-2"
+                style="height: 50%;">
                 <form action="{% url 'like_photo' photo.id %}" method="post">
                     {% csrf_token %}
                     <span class="text-white">{{photo.likes.count}}</span>
@@ -146,18 +147,19 @@
 
                 </script>
 
-                <a  href="{{photo.image.url}}" class="save-button text-white" download> <i class="fa fa-download" aria-hidden="true"></i></a>
+                <a href="{{photo.image.url}}" class="save-button text-white" download> <i class="fa fa-download"
+                        aria-hidden="true"></i></a>
 
                 <script type="text/javascript">
                     var download = document.querySelector('.save-button');
-                    var a = download.getAttribute('href'); 
+                    var a = download.getAttribute('href');
                     a = a.replace('/upload/', '/upload/fl_attachment/');
                     download.setAttribute('href', a); 
                 </script>
             </div>
-            <hr>
-            <div class="comment-div ms-1" style="height:50%;width: 100%;">
-                <form class="d-flex" action="{% url 'comment_photo' photo.id %}" class="comment-form mb-3"
+            <div class="comment-div ms-1" style="height:50%;width: 100%; border-top: 1px solid gray;">
+                <form class="mt-2 d-flex justify-content-center align-items-center"
+                    action="{% url 'comment_photo' photo.id %}" class="comment-form mb-3"
                     style="height: 100%; width: 100%;" method="post">
                     {% csrf_token%}
                     <input autocomplete="off" type="text" name="text" placeholder="Add a comment..."
@@ -175,9 +177,6 @@
                 })
             </script>
         </div>
-
-
-
     </div>
     {% else %}
     <div class="main-photo mt-2" style="height: 100%; width:70%">
@@ -215,5 +214,5 @@
     {%endif%}
 
 </div>
-</div>
+
 {% endblock content %}

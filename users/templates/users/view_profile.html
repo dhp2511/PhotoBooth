@@ -8,12 +8,11 @@
     {%else%}
 
     <div class="view-profile d-flex justify-content-center align-items-center flex-column p-4"
-    
-        style="background-color: #4E576F; border-radius: 16px; height: 50%; width: 30%; color: white;">
-           <div class="d-flex user d-flex justify-content-center align-items-center flex-column h-80">
+        style="background-color: #4E576F; border-radius: 16px; height: 50%; width: 40%; color: white;">
+        <div class="d-flex user d-flex justify-content-center align-items-center flex-column h-80">
             <div class="pfp "
                 style="width: 150px; height:150px; overflow: hidden; border-radius: 999px; background-color: #99D1C9;">
-               
+
                 {% if profile.pfp.url is not None %}
                 <img class="rounded user-pfp " alt="X" src="{{profile.pfp.url}}"
                     style="width: 100%; height: 100%; object-fit: cover;object-position: center;">
@@ -24,82 +23,88 @@
                 {%endif%}
             </div>
 
-            <div >
+            <div>
                 <h1 class="Firstname">{{profile.get_full_name}}</h1>
             </div>
             <div class=" d-flex justify-content-center align-items-center">
-                <h6 class = 'username'style="color: #FED17E;">@{{profile.username}}</h6>
-                {% if profile.is_verified %} 
-                <img src="{% static '/photos/icons/badge-verified.svg' %}" alt="X" title="verified" style="width: 25px;height: 25px;"> 
+                <h6 class='username' style="color: #FED17E;">@{{profile.username}}</h6>
+                {% if profile.is_verified %}
+                <img src="{% static 'photos/icons/badge-verified.svg' %}" alt="X" title="verified"
+                    style="width: 25px;height: 25px;">
                 {%endif %}
             </div>
-           
+
         </div>
         <div class="userBIO h-20  w-100 d-flex justify-content-start flex-column align-items-center">
             <div class="userbio p-3 justify-content-start  d-flex w-100">
-                <strong class="pe-2">Bio: </strong> <p>{{profile.user_bio}}</p>
+                <strong class="pe-2">Bio: </strong>
+                <p>{{profile.user_bio}}</p>
             </div>
 
-            </div>
-            
-            <div class="d-flex justify-content-end align-items-center ">
-                {%if profile.username == request.user.username %}
-                <a href="{% url 'edit_profile' %}"><i class="fa fa-pen fa-xl" aria-hidden="true"></i></a>
-                {%endif%}
-            </div>
         </div>
 
-    </div>
-    <div class="options mt-2 d-flex justify-content-evenly align-items-center">
-        <a href="{% url 'view_profile' profile.username %}?filter=global-posts" class="btn btn-dark m-2">Global Posts <i
-                class="fa-solid fa-globe fa-sm" style="color: #ffffff;"></i></a>
-        {%if profile.username == request.user.username %}
-        <a href="{% url 'view_profile' profile.username %}?filter=liked-posts" class="btn btn-dark m-2">Liked Posts <i
-                class="fa-solid fa-lock fa-sm" style="color: #ffffff;"></i></a>
-        <a href="{% url 'view_profile' profile.username %}?filter=commented-posts" class="btn btn-dark m-2">Commented
-            Posts <i class="fa-solid fa-lock fa-sm" style="color: #ffffff;"></i></a>
-        {%endif%}
+        <div class="d-flex justify-content-end align-items-center ">
+            {%if profile.username == request.user.username %}
+            <a href="{% url 'edit_profile' %}"><i class="fa fa-pen fa-xl" aria-hidden="true"></i></a>
+            {%endif%}
+        </div>
     </div>
 
+</div>
+<div class="options mt-2 d-flex justify-content-evenly align-items-center">
+    <a href="{% url 'view_profile' profile.username %}?filter=global-posts" class="btn btn-dark m-2">Global Posts <i
+            class="fa-solid fa-globe fa-sm" style="color: #ffffff;"></i></a>
+    {%if profile.username == request.user.username %}
+    <a href="{% url 'view_profile' profile.username %}?filter=private-posts" class="btn btn-dark m-2">Private Posts <i
+            class="fa-solid fa-lock fa-sm style=" color: #ffffff;"></i></a>
+    <a href="{% url 'view_profile' profile.username %}?filter=liked-posts" class="btn btn-dark m-2">Liked Posts <i
+            class="fa-solid fa-lock fa-sm" style="color: #ffffff;"></i></a>
+    <a href="{% url 'view_profile' profile.username %}?filter=commented-posts" class="btn btn-dark m-2">Commented
+        Posts <i class="fa-solid fa-lock fa-sm" style="color: #ffffff;"></i></a>
+    {%endif%}
+</div>
 
-    <div class="posts h-100 w-100">
-        <div class="row global-papa mx-auto">
-            {% for photo in photos %}
-            {% if photo.publicAccess or profile.username == request.user.username %}
-            <div class="col-6 col-sm-4 col-md-3 col-lg-2 my-2  h-100 global-item">
-                <div class="example-2 card my-2 h-100">
-                    <div class="wrapper" style="background: url('{{ photo.image.url }}');">
-                        <div class="data">
-                            <div class="content">
-                                <h6 class="title"><a href="{% url 'photo' photo.id %}">{{photo.category}}</a></h6>
-                                <div class="d-flex justify-content-start align-items-center">
-                                    <div class="image-pfp"
-                                        style="width: 30px; height: 30px; overflow: hidden; border-radius: 50%;">
-                                        {% if photo.user.pfp.url is not None %}
-                                        <img class="rounded user-pfp" alt="X" src="{{photo.user.pfp.url}}"
-                                            style="width: 100%; height: 100%; object-fit: cover;object-position: center;">
-                                        {%else%}
-                                        <img class="rounded user-pfp2" alt="X"
-                                            src="https://api.dicebear.com/7.x/adventurer/svg?skinColor=9e5622,763900,ecad80&seed={{photo.user.username}}&"
-                                            style="width: 100%; height: 100%; object-fit: cover;object-position: center;">
-                                        {%endif%}
-                                    </div>
-                                    <span class="author ms-2 fs-5">{{photo.user}}</span>
+
+<div class="posts h-100 w-100">
+    <div class="row global-papa mx-auto">
+        {% for photo in photos %}
+        {% if photo.publicAccess or profile.username == request.user.username %}
+        <a class="col-6 col-sm-4 col-md-3 col-lg-2 my-2  h-100 global-item" href="{% url 'photo' photo.id %}"
+            hx-boost="fadeIn">
+            <div class="example-2 card my-2 h-100">
+                <div class="wrapper" style="background: url('{{ photo.image.url }}');">
+                    <div class="data">
+                        <div class="content">
+                            <h6 class="title text-white">{{photo.category}}</h6>
+                            <div class="d-flex justify-content-start align-items-center">
+                                {%if photo.publicAccess%}
+                                <div class="image-pfp"
+                                    style="width: 30px; height: 30px; overflow: hidden; border-radius: 50%;">
+                                    {% if photo.user.pfp.url is not None %}
+                                    <img class="rounded user-pfp" alt="X" src="{{photo.user.pfp.url}}"
+                                        style="width: 100%; height: 100%; object-fit: cover;object-position: center;">
+                                    {%else%}
+                                    <img class="rounded user-pfp2" alt="X"
+                                        src="https://api.dicebear.com/7.x/adventurer/svg?skinColor=9e5622,763900,ecad80&seed={{photo.user.username}}&"
+                                        style="width: 100%; height: 100%; object-fit: cover;object-position: center;">
+                                    {%endif%}
                                 </div>
                                 <hr>
-                                <a href="{% url 'photo' photo.id %}" class="button">Check out</a>
+                                <span class="author ms-2 fs-5">{{photo.user}}</span>
+                                {%endif%}
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-            {% endif %}
-            {% empty %}
-            <h3>No Public Photos yet..</h3>
-            {% endfor%}
-        </div>
+        </a>
+        {% endif %}
+        {% empty %}
+        <h3>No Public Photos yet..</h3>
+        {% endfor%}
     </div>
-    {%endif %}
+</div>
+{%endif %}
 
 
 </div>

@@ -50,10 +50,10 @@ def view_profile(request, username=None):
         photos = Photo.objects.filter(Q(comments=user))
     elif  content_type == "liked-posts":
         photos = Photo.objects.filter(Q(likes=user))
+    elif content_type == "private-posts":
+        photos = Photo.objects.filter(Q(user=user) & Q(publicAccess=False))
 
-    print(photos)
-
-    context = {"profile": user, "photos": photos}
+    context = {"profile": user, "photos": photos , "error":None}
 
     return render(request, "users/view_profile.html", context=context)
 

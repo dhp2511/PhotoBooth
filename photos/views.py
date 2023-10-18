@@ -225,15 +225,30 @@ def viewPhoto(request, pk):
     photo = Photo.objects.get(id=pk)
     comments = Comment.objects.filter(photo=photo)
     user_agent = get_user_agent(request)
+   
     
+    photos = Photo.objects.filter(publicAccess=True)
+    paginator = Paginator(photos, 24)
+    page = int(request.GET.get("page", 1))
+    try:
+        photos = paginator.page(page)
+    except:
+        return HttpResponse("<h3 class='text-center'> No more Photos</h3>")
+
+    if request.htmx:
+        return render(request, "photos/loop_global_in_view.html",{"photos": photos,"page": page})
+
     if user_agent.is_mobile:
-        print(user_agent)
         return render(
-            request, "photos/mobile_photo.html", {"photo": photo, "comments": comments}
+            request,
+            "photos/mobile_photo.html",
+            {"photo": photo, "comments": comments},
         )
     else:
         return render(
-            request, "photos/photo.html", {"photo": photo, "comments": comments}
+            request,
+            "photos/photo.html",
+            {"photos":photos,"photo": photo, "comments": comments,"page": page},
         )
 
 
@@ -280,7 +295,7 @@ def editPage(request, pk):
 def addPhoto(request):
     user = request.user
     categories = Category.objects.filter(user=user)
-    if request.method == "POST":
+    if request.method == "POST":    
         data = request.POST
         images = request.FILES.getlist("images")
         valid_extensions = [
@@ -300,7 +315,7 @@ def addPhoto(request):
             return render(
                 request,
                 "photos/add.html",
-                {"error": "Currently, Atmost 5 images upload supported."},
+                {"categories": categories ,"error": "Currently, Atmost 5 images upload supported."},
             )
 
         if data["category"] != "none":
@@ -322,7 +337,7 @@ def addPhoto(request):
                 return render(
                     request,
                     "photos/add.html",
-                    {"error": "Please enter valid image file!"},
+                    {"categories": categories ,"error": "Please enter valid image file!"},
                 )
 
             photo = Photo.objects.create(
@@ -334,7 +349,7 @@ def addPhoto(request):
             )
         return redirect("gallery")
 
-    return render(request, "photos/add.html", {"categories": categories})
+    return render(request, "photos/add.html", {"categories": categories , "error":None})
 
 
 @login_required(login_url="login")
@@ -392,9 +407,6 @@ def comment_photo(request, pk):
         text = request.POST.get("text")
         Comment.objects.create(user=request.user, photo=photo, text=text)
     return redirect(reverse("photo", args=[str(pk)]))
-
-
-
 
 
 @login_required(login_url="login")

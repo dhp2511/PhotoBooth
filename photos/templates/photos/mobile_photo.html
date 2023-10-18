@@ -2,7 +2,6 @@
 {% load static %}
 {% block content %}
 <div class="photo-wrapper" style="height: 100%; width: 100%;">
-
     <div class="user-interact d-flex justify-content-between align-items-center flex-column "
         style="height: 100%; width: 100%;">
         <div class="desc_name p-2" style="height:100%; width: 100%;  overflow: hidden;">
@@ -37,9 +36,19 @@
 
             <div class="image">
                 <img style="width: revert-layer; height: 100%;border: 1px solid black; border-radius: 20%;"
-                    src="{{photo.image.url}}" class="card-img-top img-fluid rounded" alt="...">
+                    src="{{photo.image.url}}" class="card-img-top img-fluid rounded" id="mainImage" alt="...">
             </div>
             <hr>
+            <div class="toast align-items-center border-0 w-100" style="background-color:#4E576F;" role="alert"
+                aria-live="assertive" aria-atomic="true">
+                <div class="d-flex z-3">
+                    <div class="toast-body text-white">
+                        Link copied to clipboard!
+                    </div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"
+                        aria-label="Close"></button>
+                </div>
+            </div>
             {% if photo.publicAccess %}
             <div class="interact-buttons mt-3 d-flex justify-content-evenly align-items-center" style="height: 50%;">
                 <form action="{% url 'like_photo' photo.id %}" method="post">
@@ -60,11 +69,32 @@
                         <i class="fa-regular fa-comment" aria-hidden="true" style="color: white;"></i>
                     </button>
                 </div>
-                <button class="share-button text-white" style="font-size: 6vw;"> <i class="fa fa-share"
-                        aria-hidden="true"></i>
+                <button type="button" id="toastbtn" class="share-button text-white" style="font-size:6vw;"> <i
+                        class="fa fa-share" aria-hidden="true"></i>
                 </button>
-                <a href="{% url 'download' photo.id %}" class="save-button text-white" style="font-size: 6vw;"> <i
+                <script>
+                    document.getElementById("toastbtn").onclick = function () {
+                        var photoUrl = document.querySelector('#mainImage');
+                        console.log(photoUrl.src)
+                        navigator.clipboard.writeText(photoUrl.src);
+                        var toastElList = [].slice.call(document.querySelectorAll('.toast'))
+                        var toastList = toastElList.map(function (toastEl) {
+                            return new bootstrap.Toast(toastEl)
+                        })
+                        toastList.forEach(toast => toast.show())
+                    }
+
+                </script>
+
+                <a href="{{photo.image.url}}" class="save-button text-white" download style="font-size:6vw;"> <i
                         class="fa fa-download" aria-hidden="true"></i></a>
+
+                <script type="text/javascript">
+                    var download = document.querySelector('.save-button');
+                    var a = download.getAttribute('href');
+                    a = a.replace('/upload/', '/upload/fl_attachment/');
+                    download.setAttribute('href', a); 
+                </script>
 
             </div>
             <div class="comments mt-2 ps-2" style="height: 100%; width: 100%; margin-bottom: 20%;">
