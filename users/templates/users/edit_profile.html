@@ -24,7 +24,9 @@
         </div>
         <div class="input_container">
             <label class="input_label" for="username_field">Change PFP </label>
+            {% if request.user.pfp.url is not None %}
             <input class="changepfp" autocomplete="off" placeholder="Profile" title="pfp" name="pfp" type="file" value="{{request.user.pfp.url}}">
+            {%endif%}
         </div>
 
         <div class="input_container">
