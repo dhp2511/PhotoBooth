@@ -3,7 +3,7 @@ from .models import Category, Photo, Comment, Like
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
-from django.http import JsonResponse, HttpResponse,HttpResponseForbidden
+from django.http import JsonResponse, HttpResponse, HttpResponseForbidden
 from django.urls import reverse
 from django.http import FileResponse
 from django.core.paginator import Paginator
@@ -14,52 +14,58 @@ import re
 from django.contrib.auth import get_user_model
 from verify_email import send_verification_email
 from django.template import RequestContext
+
 User = get_user_model()
 
 
 def loginUser(request):
     if request.user.is_authenticated:
-        return redirect('/')
+        return redirect("/")
     if request.method == "POST":
         username = request.POST["username"]
         password = request.POST["password"]
         try:
             user = User.objects.get(username=username)
         except:
-            return render(request, "photos/login.html", {"problem": "Account not registered"})
+            return render(
+                request, "photos/login.html", {"problem": "Account not registered"}
+            )
         if not user.is_active:
             return render(request, "photos/email_confirmation.html")
-    
-        user = authenticate(request, username=username, password=password) 
-       
+
+        user = authenticate(request, username=username, password=password)
+
         if user is not None:
             login(request, user)
             return redirect("gallery")
         else:
-            return render(request, "photos/login.html", {"problem": "Incorrect Username or Password!"})
+            return render(
+                request,
+                "photos/login.html",
+                {"problem": "Incorrect Username or Password!"},
+            )
 
-    return render(request, "photos/login.html") 
+    return render(request, "photos/login.html")
 
 
 @login_required(login_url="login")
 def logoutUser(request):
     logout(request)
     return redirect("gallery")
- 
+
 
 def registerUser(request):
     form = RegistrationForm()
     if request.user.is_authenticated:
-        return redirect('/')
+        return redirect("/")
     if request.method == "POST":
         form = RegistrationForm(request.POST)
         if form.is_valid():
             username = form.cleaned_data["username"]
             password = form.cleaned_data["password"]
-           
+
             email = form.cleaned_data["email"]
             confirmPassword = form.cleaned_data["confirmpassword"]
-
 
             pattern = r"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,7}\b"
 
@@ -69,7 +75,7 @@ def registerUser(request):
                     "photos/register_form.html",
                     {
                         "form": form,
-                        "error": "Username must start with a letter, should be 4 to 12 characters long, and can contain letters, numbers, periods, and underscores."
+                        "error": "Username must start with a letter, should be 4 to 12 characters long, and can contain letters, numbers, periods, and underscores.",
                     },
                 )
 
@@ -77,9 +83,7 @@ def registerUser(request):
                 return render(
                     request,
                     "photos/register_form.html",
-                    {
-                        "form": form,
-                        "error": "Not a valid email address"},
+                    {"form": form, "error": "Not a valid email address"},
                 )
 
             if len(username) < 3:
@@ -88,50 +92,54 @@ def registerUser(request):
                     "photos/register_form.html",
                     {
                         "form": form,
-                        "error": "Username must be at least 3 characters long"},
+                        "error": "Username must be at least 3 characters long",
+                    },
                 )
 
             if len(password) < 8:
                 return render(
                     request,
                     "photos/register_form.html",
-                    {"form": form,"error": "Password must be at least 8 characters long"},
+                    {
+                        "form": form,
+                        "error": "Password must be at least 8 characters long",
+                    },
                 )
 
             if User.objects.filter(username=username).exists():
                 return render(
                     request,
                     "photos/register_form.html",
-                    {"form": form,"error": "Username is already taken"},
+                    {"form": form, "error": "Username is already taken"},
                 )
             if User.objects.filter(email=email).exists():
                 return render(
                     request,
                     "photos/register_form.html",
-                    {"form": form,"error": "Email is already in use"},
+                    {"form": form, "error": "Email is already in use"},
                 )
 
             if password == confirmPassword:
                 try:
                     inactive_user = form.save(commit=False)
-                    inactive_user.set_password(form.cleaned_data['password'])
+                    inactive_user.set_password(form.cleaned_data["password"])
                     inactive_user = send_verification_email(request, form)
-                    
-                    return render(request, 'photos/email_confirmation.html')
+
+                    return render(request, "photos/email_confirmation.html")
                 except:
                     return render(
-                    request,
-                    "photos/register_form.html",
-                    {"form": form,"error": "Something went wrong!"},
-                )
-                    
+                        request,
+                        "photos/register_form.html",
+                        {"form": form, "error": "Something went wrong!"},
+                    )
+
             else:
                 return render(
                     request,
                     "photos/register_form.html",
                     {"error": "Password and confirm password doesn't match "},
                 )
-            
+
     return render(request, "photos/register_form.html", {"form": form})
 
 
@@ -198,11 +206,17 @@ def gallery(request):
         photos = paginator.page(page)
     except:
         return HttpResponse("<h3 class='text-center'> No more Photos</h3>")
-    
-    context = {'category':category,"categories": categories,"photos": photos, "searchTerm": searchTerm, "page": page}
-    
+
+    context = {
+        "category": category,
+        "categories": categories,
+        "photos": photos,
+        "searchTerm": searchTerm,
+        "page": page,
+    }
+
     if request.htmx:
-        return render(request,"photos/loop_gallery.html",context=context)
+        return render(request, "photos/loop_gallery.html", context=context)
     return render(request, "photos/gallery.html", context=context)
 
 
@@ -211,6 +225,7 @@ def viewPhoto(request, pk):
     photo = Photo.objects.get(id=pk)
     comments = Comment.objects.filter(photo=photo)
     user_agent = get_user_agent(request)
+    
     if user_agent.is_mobile:
         print(user_agent)
         return render(
@@ -268,10 +283,25 @@ def addPhoto(request):
     if request.method == "POST":
         data = request.POST
         images = request.FILES.getlist("images")
-        valid_extensions = ['jpg', 'jpeg', 'png', 'bmp', 'webp', 'svg', 'tiff', 'tif', 'gif', 'heif']
-        
+        valid_extensions = [
+            "jpg",
+            "jpeg",
+            "png",
+            "bmp",
+            "webp",
+            "svg",
+            "tiff",
+            "tif",
+            "gif",
+            "heif",
+        ]
+
         if len(images) > 5:
-            return render(request, "photos/add.html", {"error": "Currently, Atmost 5 images upload supported."})
+            return render(
+                request,
+                "photos/add.html",
+                {"error": "Currently, Atmost 5 images upload supported."},
+            )
 
         if data["category"] != "none":
             category = Category.objects.get(user=user, id=data["category"])
@@ -289,8 +319,12 @@ def addPhoto(request):
 
         for image in images:
             if not any(image.name.endswith(ext) for ext in valid_extensions):
-                return render(request, "photos/add.html", {"error": "Please enter valid image file!"})
-            
+                return render(
+                    request,
+                    "photos/add.html",
+                    {"error": "Please enter valid image file!"},
+                )
+
             photo = Photo.objects.create(
                 user=user,
                 category=category,
@@ -301,8 +335,6 @@ def addPhoto(request):
         return redirect("gallery")
 
     return render(request, "photos/add.html", {"categories": categories})
-
-
 
 
 @login_required(login_url="login")
@@ -321,9 +353,7 @@ def delete_category_and_images(request, category_id):
         photo.delete()
 
     # Redirect to a specific page after the deletion is complete.
-    return redirect(
-        "gallery"
-    )  
+    return redirect("gallery")
 
 
 @login_required(login_url="login")
@@ -364,18 +394,8 @@ def comment_photo(request, pk):
     return redirect(reverse("photo", args=[str(pk)]))
 
 
-from django.http import FileResponse
-from django.shortcuts import get_object_or_404
-from .models import Photo
 
 
-@login_required(login_url="login")
-def download(request, pk):
-    photo = get_object_or_404(Photo, pk=pk)
-    image_path = photo.image.path
-    response = FileResponse(open(image_path, "rb"))
-    response["Content-Disposition"] = f'attachment; filename="{photo.image.name}"'
-    return response
 
 @login_required(login_url="login")
 def delete_comment(request, pk):
@@ -383,15 +403,13 @@ def delete_comment(request, pk):
 
     if comment.user == request.user:
         comment.delete()
-        previous_page = request.META.get('HTTP_REFERER', '/')
-        return redirect(previous_page)  
+        previous_page = request.META.get("HTTP_REFERER", "/")
+        return redirect(previous_page)
     else:
-        return HttpResponse(status=403) 
-    
-    
-    
+        return HttpResponse(status=403)
 
-def page_not_found(request,exception=None):
+
+def page_not_found(request, exception=None):
     context = {}
     response = render(request, "/404.html", context=context)
     response.status_code = 404

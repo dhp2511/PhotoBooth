@@ -22,7 +22,6 @@ urlpatterns = [
     path("photo/<str:pk>", views.viewPhoto, name="photo"),
     path("add/", views.addPhoto, name="add"),
     path("gallery/delete_images/", views.delete_images, name="delete_images"),
-    path("download/<str:pk>/", views.download, name="download"),
     path("delete_comment/<str:pk>", views.delete_comment, name="delete_comment"), 
     path('accounts/social/signup/', CustomSignupView.as_view(), name='socialaccount_signup'),
     path('/', include('verify_email.urls')),

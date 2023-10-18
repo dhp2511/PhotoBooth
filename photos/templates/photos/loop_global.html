@@ -1,11 +1,12 @@
 {%load static%} {% for photo in photos %}
 {% if photo.publicAccess %}
-<div class="col-6 col-sm-4 col-md-3 col-lg-2 my-2 h-100 global-item" hx-boost="fadeIn">
+<a class="col-6 col-sm-4 col-md-3 col-lg-2 my-2 h-100 global-item" href="{% url 'photo' photo.id %}" hx-boost="fadeIn">
+
     <div class="example-2 card my-2 h-100">
         <div class="wrapper" style="background: url('{{ photo.image.url }}');">
             <div class="data">
                 <div class="content">
-                    <h6 class="title"><a href="{% url 'photo' photo.id %}">{{photo.category}}</a></h6>
+                    <h6 class="title text-white">{{photo.category}}</h6>
                     <div class="d-flex justify-content-start align-items-center">
                         <div class="image-pfp" style="width: 30px; height: 30px; overflow: hidden; border-radius: 50%;">
                             {% if photo.user.pfp.url is not None %}
@@ -20,20 +21,18 @@
                         <span class="author ms-2 fs-5">{{photo.user}}</span>
                     </div>
                     <hr>
-                    <a href="{% url 'photo' photo.id %}" class="button">Check out</a>
+                    <span href="{% url 'photo' photo.id %}" class="button">Check out</span>
                 </div>
             </div>
         </div>
     </div>
-</div>
+</a>
 {% endif %}
-{% empty %}
-<h3>No Public Photos yet..</h3>
 {% endfor%}
 
 <div class="d-flex justify-content-center pb-5"
     hx-get="{% if searchTerm %}{% url 'global' %}?searchImage={{searchTerm}}&page={{page|add:1}}{% else %}{% url 'global' %}?page={{page|add:1}}{% endif %}"
-    hx-trigger="revealed" hx-target="this" hx-swap="outerHTML" >
+    hx-trigger="revealed" hx-target="this" hx-swap="outerHTML">
     <div class="spinner-border " role="status">
         <span class="sr-only">Loading...</span>
     </div>

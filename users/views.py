@@ -19,7 +19,8 @@ def edit_profile(request):
     if request.method == "POST":
         print(request.POST.get("bio"))
         fullname = request.POST.get("puraname")
-        user.pfp = request.FILES.get("pfp")
+        if request.FILES.get('pfp') is not None:
+            user.pfp = request.FILES.get("pfp")
         user.user_bio = request.POST.get("bio")
         full_name_parts = fullname.split()
         user.first_name = full_name_parts[0] if full_name_parts else ""

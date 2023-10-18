@@ -42,7 +42,7 @@
         body {
             /* display: grid; */
             background:url("{% static 'photos/icons/bg-grad-0deg.png' %}");
-            background-size: cover;
+            background-size: auto;
             background-repeat: repeat;
             overflow-x: hidden;
         }
@@ -446,7 +446,7 @@
 <script>
     $(window).scroll(function () {
         var scroll = $(window).scrollTop();
-        var navHeight = $('.navbar').height(); // Replace '.navbar' with your navbar's class or id
+        var navHeight = $('.navbar').height();
 
         if (scroll >= navHeight) {
             $('.search-ham').addClass('sticky-background');
@@ -470,10 +470,11 @@
         var deviceWidth = window.innerWidth;
         var top = document.querySelector('.top')
         console.log(document.body.clientHeight, window.innerHeight)
-        if (document.body.clientHeight <= window.innerHeight) {
-            document.body.style.backgroundSize = "auto";
+
+        if (document.body.clientHeight <= window.innerHeight ) {
             if (top) top.style.display = "none";
         }
+
     });
 
 </script>

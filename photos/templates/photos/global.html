@@ -23,12 +23,14 @@
 <div class="row global-papa mx-auto">
     {% for photo in photos %}
     {% if photo.publicAccess %}
-    <div class="col-6 col-sm-4 col-md-3 col-lg-2 my-2  h-100 global-item">
+    <a  class="col-6 col-sm-4 col-md-3 col-lg-2 my-2 h-100 global-item" href="{% url 'photo' photo.id %}" hx-boost="fadeIn">
+
+    
         <div class="example-2 card my-2 h-100">
             <div class="wrapper" style="background: url('{{ photo.image.url }}');">
                 <div class="data">
                     <div class="content">
-                        <h6 class="title"><a href="{% url 'photo' photo.id %}">{{photo.category}}</a></h6>
+                        <h6 class="title text-white">{{photo.category}}</h6>
                         <div class="d-flex justify-content-start align-items-center">
                             <div class="image-pfp"
                                 style="width: 30px; height: 30px; overflow: hidden; border-radius: 50%;">
@@ -43,16 +45,13 @@
                             </div>
                             <span class="author ms-2 fs-5">{{photo.user}}</span>
                         </div>
-
-
                         <hr>
-                        <!-- <p class="text">{{photo.description| slice:"25"}}</p> -->
-                        <a href="{% url 'photo' photo.id %}" class="button">Check out</a>
+                        <span href="{% url 'photo' photo.id %}" class="button">Check out</span>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
+    </a>
     {% endif %}
     {% empty %}
     <h3>No Public Photos yet..</h3>
