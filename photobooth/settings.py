@@ -110,7 +110,7 @@ WSGI_APPLICATION = "photobooth.wsgi.application"
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
-        "NAME": "railway",
+        "NAME": "photobooth-g6qil",
         "USER": "postgres",
         "PASSWORD": os.environ.get("PGPASSWORD"),
         "HOST": os.environ.get("PGHOST"),
