@@ -1,4 +1,5 @@
 import os
+import logging
 from django.shortcuts import render, redirect, get_object_or_404
 from .models import Category, Photo, Comment, Like
 from django.contrib.auth import authenticate, login, logout
@@ -127,7 +128,9 @@ def registerUser(request):
                     inactive_user = send_verification_email(request, form)
 
                     return render(request, "photos/email_confirmation.html")
-                except:
+                except Exception as e:
+                    logger = logging.getLogger(__name__)
+                    logger.error(f"Error : {str(e)}")
                     return render(
                         request,
                         "photos/register_form.html",
