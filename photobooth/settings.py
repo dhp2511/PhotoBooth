@@ -31,12 +31,34 @@ load_dotenv()
 SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DJANGO_ENV = os.environ.get("DJANGO_ENV")
 
+if DJANGO_ENV == "dev":
+    DEBUG = True
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": BASE_DIR / "db.sqlite3",
+        }
+    }
+    ALLOWED_HOSTS = ["127.0.0.1", "localhost"]
+    CSRF_TRUSTED_ORIGINS = ["http://127.0.0.1", "http://localhost"]
+else:
+    DEBUG = False
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.postgresql",
+            "NAME": "postgres",
+            "USER": "postgres.zkcynaqsyzdvffnstqrt",
+            "PASSWORD": os.environ.get("PGPASSWORD"),
+            "HOST": os.environ.get("PGHOST"),
+            "PORT": os.environ.get("PGPORT"),
+            "CONN_MAX_AGE": 600,
+        }
+    }
+    ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS", "").split(",")
+    CSRF_TRUSTED_ORIGINS = [f"https://{host}" for host in ALLOWED_HOSTS if host]
 
-ALLOWED_HOSTS = ["127.0.0.1", "localhost", "yourdomain.com"]
-
-CSRF_TRUSTED_ORIGINS = ["https://127.0.0.1",]
 AUTH_USER_MODEL = "users.User"
 # Application definition
 
@@ -105,26 +127,7 @@ WSGI_APPLICATION = "photobooth.wsgi.application"
 
 
 
-if DEBUG == True:   
-    DATABASES = {
-            "default": {
-                "ENGINE": "django.db.backends.sqlite3",
-                "NAME": BASE_DIR / "db.sqlite3",
-                
-            }
-        }
-else:
-    DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.postgresql",
-        "NAME": "postgres",
-        "USER": "postgres.zkcynaqsyzdvffnstqrt",
-        "PASSWORD": os.environ.get("PGPASSWORD"),
-        "HOST": os.environ.get("PGHOST"),
-        "PORT": os.environ.get("PGPORT"),
-         "CONN_MAX_AGE": 600,
-    }
-}
+
 
 
 # Password validation
