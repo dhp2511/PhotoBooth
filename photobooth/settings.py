@@ -56,8 +56,8 @@ else:
             "CONN_MAX_AGE": 600,
         }
     }
-    ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS", "").split(",")
-    CSRF_TRUSTED_ORIGINS = [f"https://{host}" for host in ALLOWED_HOSTS if host]
+    ALLOWED_HOSTS = ["photobooth-mw5r.onrender.com"]
+    CSRF_TRUSTED_ORIGINS = ["https://photobooth-mw5r.onrender.com"]
 
 AUTH_USER_MODEL = "users.User"
 # Application definition
