@@ -3,11 +3,14 @@ from . import views
 from django.conf import settings
 from django.conf.urls.static import static
 from .views import CustomSignupView
-handler404 = 'photos.views.page_not_found'
+from photos.views import page_not_found
+
+handler404 = page_not_found
 
 urlpatterns = [
     path("", views.global_view, name="global"),
     path("login/", views.loginUser, name="login"),
+    path('user/login/', views.loginUser, name='login'),
     path("logout/", views.logoutUser, name="logout"),
     path("gallery/", views.gallery, name="gallery"),
     path("edit/<str:pk>", views.editPage, name="edit"),

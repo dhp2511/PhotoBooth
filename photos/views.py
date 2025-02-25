@@ -1,3 +1,4 @@
+import os
 from django.shortcuts import render, redirect, get_object_or_404
 from .models import Category, Photo, Comment, Like
 from django.contrib.auth import authenticate, login, logout
@@ -168,7 +169,10 @@ def global_view(request):
     try:
         photos = paginator.page(page)
     except:
-        return HttpResponse("<h3 class='text-center'> No more Photos</h3>")
+        return HttpResponse("<p class='text-center' style='display:none;'> No more Photos</p>")
+    
+    # for photo in photos:
+        # print(is_gif_image(photo.image))
 
     context = {"photos": photos, "searchTerm": searchTerm, "page": page}
 
@@ -182,30 +186,28 @@ def global_view(request):
 def gallery(request):
     user = request.user
     category = request.GET.get("category")
+    type = request.GET.get("type")
     searchTerm = request.GET.get("searchImage")
     categories = Category.objects.filter(user=user)
-    if searchTerm:
-        photos = Photo.objects.filter(
-            Q(user=user)
-            & (
-                Q(category__name__icontains=searchTerm)
-                | Q(description__icontains=searchTerm)
-            )
-        )
-    else:
-        if category == None:
-            photos = Photo.objects.filter(user=user)
-        else:
-            photos = Photo.objects.filter(
-                Q(category__name__contains=category) & Q(user=user)
-            )
+    photos = Photo.objects.filter(user=user)
 
-    paginator = Paginator(photos, 24)
+    print(category,type)
+
+    if searchTerm:
+        photos = photos.filter(Q(category__name__icontains=searchTerm)| Q(description__icontains=searchTerm))
+    if category:
+        photos = photos.filter(Q(category__name__contains=category))
+    if type == "public":
+        photos = photos.filter(Q(publicAccess=True))
+    elif type == "private": 
+        photos = photos.filter(Q(publicAccess=False))
+
+    paginator = Paginator(photos, 24)   
     page = int(request.GET.get("page", 1))
     try:
         photos = paginator.page(page)
     except:
-        return HttpResponse("<h3 class='text-center'> No more Photos</h3>")
+        return HttpResponse("<p class='text-center' style='display:none;'> No more Photos</p>")
 
     context = {
         "category": category,
@@ -220,23 +222,31 @@ def gallery(request):
     return render(request, "photos/gallery.html", context=context)
 
 
-@login_required(login_url="login")
+# @login_required(login_url="login")
 def viewPhoto(request, pk):
-    photo = Photo.objects.get(id=pk)
+
+    photo = get_object_or_404(Photo, id=pk)
+    if(photo.user != request.user and not photo.publicAccess):
+        return page_not_found(request=request)
+    
     comments = Comment.objects.filter(photo=photo)
     user_agent = get_user_agent(request)
-   
     
-    photos = Photo.objects.filter(publicAccess=True)
-    paginator = Paginator(photos, 24)
+    
+    similar_photos = Photo.objects.filter(
+            Q(category__name__icontains=photo.category) & Q(publicAccess=True)
+        ).exclude(id=pk).order_by('?')    
+    
+    paginator = Paginator(similar_photos, 24)
     page = int(request.GET.get("page", 1))
-    try:
-        photos = paginator.page(page)
-    except:
-        return HttpResponse("<h3 class='text-center'> No more Photos</h3>")
 
-    if request.htmx:
-        return render(request, "photos/loop_global_in_view.html",{"photos": photos,"page": page})
+    try:
+        similar_photos = paginator.page(page)
+    except:
+        return HttpResponse("<p class='text-center' style='display:none;'> No more Photos</p>")
+    
+    if request.headers.get("HX-Request"):
+        return render(request, "photos/loop_global_in_view.html", {"photos": similar_photos, "page": page})
 
     if user_agent.is_mobile:
         return render(
@@ -248,7 +258,7 @@ def viewPhoto(request, pk):
         return render(
             request,
             "photos/photo.html",
-            {"photos":photos,"photo": photo, "comments": comments,"page": page},
+            {"photos":similar_photos,"photo": photo, "comments": comments,"page": page},
         )
 
 
@@ -325,20 +335,26 @@ def addPhoto(request):
                 user=user, name=data["category_new"]
             )
         else:
-            category = None
+            return render(
+                request,
+                "photos/add.html",
+                { "categories": categories,"error": "Please select a category or create a new one!"},
+            )
 
         publicOrNot = False
 
         if data["global_access"] == "public":
             publicOrNot = True
 
+        
         for image in images:
             if not any(image.name.endswith(ext) for ext in valid_extensions):
                 return render(
                     request,
                     "photos/add.html",
                     {"categories": categories ,"error": "Please enter valid image file!"},
-                )
+                ) 
+            _, file_extension = os.path.splitext(image.name)
 
             photo = Photo.objects.create(
                 user=user,
@@ -346,6 +362,7 @@ def addPhoto(request):
                 description=data["description"],
                 image=image,
                 publicAccess=publicOrNot,
+                image_type=file_extension[1:],
             )
         return redirect("gallery")
 
@@ -381,8 +398,6 @@ def delete_images(request):
     for photo_id in photo_ids:
         photo = Photo.objects.filter(pk=photo_id)
         photo.delete()
-
-    # Delete the photos from the database
 
     # Return a success response
     return JsonResponse({"success": True})
@@ -423,6 +438,6 @@ def delete_comment(request, pk):
 
 def page_not_found(request, exception=None):
     context = {}
-    response = render(request, "/404.html", context=context)
+    response = render(request, "404.html", context=context)
     response.status_code = 404
     return response

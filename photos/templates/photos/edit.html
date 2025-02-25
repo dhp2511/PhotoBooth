@@ -10,20 +10,21 @@
     </div>
     <div class="d-flex justify-content-center align-items-center mt-5">
 
-        <div class="card ms-3" style="width: 100%; height: fit-content;background-color: #4e576f;color: rgb(0, 0, 0);">
-            <h5 class="p-3 text-white">Edit: {{photo.image.name}}</h5>
-            <form method='POST' action="" enctype="multipart/form-data" style="background-color: #4e576f; color: white;">
+        <div class="card ms-3" style="width: 100%; height: fit-content;">
+            <h5 class="p-3">Edit: {{photo}}
+            </h5>
+            <form method='POST' action="" enctype="multipart/form-data" >
                 {% csrf_token %}
 
                 <div class="form-group m-3">
                     <label>Description</label>
                     <input autocomplete="off" required name="description" type="text" placeholder="Enter a description"
-                        class="form-control" value="{{photo.description}}"  style="background-color: #C1CAE3; color: black;">
+                        class="form-control" value="{{photo.description}}"  >
                 </div>
 
                 <div class="form-group m-3">
                     <label>Select a category</label>
-                    <select name="category" class="form-control" style="background-color: #C1CAE3; color: black;">
+                    <select name="category" class="form-control" >
                         <option value='none'>Select a category...</option>
                         {% for category in categories %}
                         <option value='{{category.id}}'>{{category.name}}</option>
@@ -33,7 +34,7 @@
                 <span class='ms-3'>Or</span>
                 <div class="form-group m-3" >
                     <label>Create a new category</label>
-                    <input style="background-color: #C1CAE3; color: black;" autocomplete="off" name="category_new" type="text" placeholder="Create a new category" class="form-control" value="{{photo.category}}">
+                    <input  autocomplete="off" name="category_new" type="text" placeholder="Create a new category" class="form-control" value="{{photo.category}}">
                 </div>
 
                 <div class="form-group m-3">
@@ -45,7 +46,7 @@
                     <input type="radio"  name="global_access" id="private" value="private">
 
                 </div>
-                <button type='submit' class="btn btn-primary m-3 text-dark" style="background-color: #99D1C9;">Submit</button>
+                <button type='submit' class="btn btn-primary m-3 " >Submit</button>
 
             </form>
         </div>

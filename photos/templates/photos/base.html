@@ -23,29 +23,60 @@
         crossorigin="anonymous"></script>
 
 
-    {% load static %}
-    <script src="{% static 'js/htmx.min.js' %}" defer></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/htmx/1.9.6/htmx.min.js"
+        integrity="sha512-tGWc4YBM6ag1pJndcieiU2r+lJXdzBRk70mHE13JoGeZI/QdWQkQ6q1CL1xYdJtTOfARf5oPcxJCnS6bLaM+KA=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     {% load static %}
     <link rel="stylesheet" type="text/css" href="{% static 'photos/css/main.css' %}">
 
-    <link rel="stylesheet" type="text/css" href="{% static 'photos/css/card.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'photos/css/newcard.css' %}">
 
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-    <script src="https://unpkg.com/htmx.org@1.9.6"
-        integrity="sha384-FhXw7b6AlE/jyjlZH5iHa/tTe9EpJ1Y55RjcgPbjeWMskSxZt1v9qkxLJWNJaGni"
-        crossorigin="anonymous"></script>
+    <script defer src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 
-
-    <script src="https://kit.fontawesome.com/a9fb673aff.js" crossorigin="anonymous"></script>
+    <script defer src="https://kit.fontawesome.com/a9fb673aff.js" crossorigin="anonymous"></script>
     <style>
+        :root {
+            --bg-color: #181818;
+            --card-bg: #282828;
+            --text-color: #EAEAEA;
+            --accent-color: #4E576F;
+
+            /* Dark Mode Navbar & Sidebar */
+            --navbar-bg: rgb(30, 33, 45);
+            --box-bg: rgba(30, 33, 45, 0.5);
+            --navbar-text: #EAEAEA;
+            --sidebar-bg: #1E212D;
+            --sidebar-border: #444444;
+        }
+
+        [data-theme="light"] {
+            --bg-color: #FFFFFF;
+            --card-bg: #F8F9FA;
+            --text-color: #212529;
+            --accent-color: #4E576F;
+            --box-bg: rgba(153, 209, 201, 0.5);
+
+            /* Navbar & Sidebar */
+            --navbar-bg: #99d1c9;
+            /* Original navbar color */
+            --navbar-text: #212529;
+            --sidebar-bg: #99D1C9;
+            /* Original sidebar color */
+            --sidebar-border: rgb(0, 0, 0, 0.4);
+        }
+
+
         body {
-            /* display: grid; */
-            background:url("{% static 'photos/icons/bg-grad-0deg.png' %}");
+            /*background:url("{% static 'photos/icons/bg-grad-0deg.png' %}");
             background-size: auto;
             background-repeat: repeat;
-            overflow-x: hidden;
+            overflow-x: hidden; */
+            background-color: var(--bg-color);
+            color: var(--text-color);
         }
+
+
 
         input:focus {
             outline: none !important;
@@ -54,6 +85,7 @@
         input::placeholder {
             color: black !important;
         }
+
 
         .login-btn {
             text-decoration: none !important;
@@ -71,7 +103,7 @@
 
         .active-link {
             font-weight: bold;
-            color: #FED17E;
+            color: var(--bg-color);
             /* Change to your desired active link color */
         }
 
@@ -85,6 +117,10 @@
             width: 100%;
         }
 
+        a {
+            text-decoration: none !important;
+        }
+
 
         button.like-button:hover,
         button.comment-button:hover,
@@ -93,9 +129,6 @@
             transform: scale(1.5) !important;
         }
 
-        .navbar.bg-dark {
-            background-color: #4E576F !important;
-        }
 
         .global-item {
             animation: fadeIn 1s ease-in;
@@ -115,207 +148,346 @@
 
 <body>
 
-    <nav class="navbar sticky-top navbar-expand-lg navbar-dark bg-dark">
-        <!-- Container wrapper -->
-        <div class="container-fluid">
-            <!-- Navbar brand -->
-            <a class="navbar-brand" href="{% url 'global' %}">
-                <img src="{% static 'photos/icons/gallery_logo_svg.svg' %}" alt="X" style="width: 50px;height: 50px;">
-                <strong style="color:#FED17E">Photo</strong> <strong style="color: #99D1C9;">Booth</strong>
-            </a>
+    <div class="modal fade" id="delImageModal" tabindex="-1" aria-labelledby="delImageModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="delImageModalLabel">Delete Following images</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body del-model">
 
-            <!-- Toggle button -->
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
-                data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false"
-                aria-label="Toggle navigation">
-                <i class="fas fa-bars text-light"></i>
-            </button>
+                </div>
+                <script>
+                    function handleImageInfo() {
+                        var modal = document.querySelector('.del-model')
+                        var listItems = document.querySelectorAll('#photo-detail');
+                        if (listItems.length == 0) {
+                            modal.innerHTML = "<h5>" + 'No photos to delete' + "</h5>";
+                            return;
+                        }
+                        var newLi = '';
+                        newLi += '<ul>'
+                        var count = 0;
+                        listItems.forEach(element => {
+                            count++;
+                            const spanElement = element.querySelector('.photo-name');
+                            if (spanElement)
+                                newLi += '<div>' + spanElement.textContent + '</div>';
+                        });
+                        newLi += '</ul>'
+                        if (count >= 20) {
+                            modal.innerHTML = `Are you sure you want to delete ${count} photos?`
+                        } else {
+                            modal.innerHTML = newLi;
+                        }
+                    }
+                </script>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" onclick="handleDeleteImages()" class="btn btn-danger">Delete</button>
+                </div>
 
-            <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                <!-- Left links -->
-                <ul class="navbar-nav me-auto d-flex flex-column flex-lg-row mt-3 mt-lg-0">
-                    <li class="nav-item text-center my-2">
-                        <a class="nav-link {% if request.resolver_match.url_name == 'gallery' %}active-link{% endif %}"
-                            href="{% url 'gallery' %}">
-                            <div class="d-flex align-items-center justify-content-start">
-                                <i class="fas fa-home fa-lg mb-1 me-2"></i>
-                                <span>Booth</span>
-                            </div>
-                        </a>
-                    </li>
-                    <li class="nav-item text-center my-2">
-                        <a class="nav-link {% if request.resolver_match.url_name == 'global' %}active-link{% endif %}"
-                            href="{% url 'global' %}">
-                            <div class="d-flex align-items-center justify-content-start">
-                                <i class="fas fa-globe-americas fa-lg mb-1 me-2"></i>
-                                <span class="badge rounded-pill badge-notification bg-success"></span>
-                                <span>Global</span>
-                            </div>
-                        </a>
-                    </li>
+                <script>
+                    function handleDeleteImages() {
+                        const selectedPhotos = document.querySelectorAll('#photo-detail');
+                        const photoIDs = [];
 
-                    <li class="nav-item text-center my-2">
-                        <a class="nav-link {% if request.resolver_match.url_name == 'add' %}active-link{% endif %}"
-                            href="{% url 'add' %}">
-                            <div class="d-flex align-items-center justify-content-start">
-                                <i class="fas fa-plus fa-lg mb-1 me-2"></i>
-                                <span>Add</span>
-                            </div>
-                        </a>
-                    </li>
+                        // Ensure that photoIDs array contains valid IDs and remove any empty or invalid values
+                        selectedPhotos.forEach(photo => {
+                            const id = photo.dataset.id;
+                            if (id) {
+                                photoIDs.push(id);
+                            }
+                        });
 
-                </ul>
+                        // Check if there are valid photo IDs to delete
+                        if (photoIDs.length === 0) {
+                            alert('No photos selected for deletion.');
+                            return;
+                        }
 
+                        const xhr = new XMLHttpRequest();
+                        const url = `delete_images?photo_ids=${photoIDs.join(',')}`;
+                        xhr.open('DELETE', url);
 
-                <ul class="navbar-nav ml-auto">
-                    <li class="nav-item">
-                        {% if request.user.is_active %}
-                    <li class="nav-item d-flex">
-                        <div class="image-pfp me-3 dropdown">
+                        // Get the CSRF token from a function, assuming you have a function to retrieve it
+                        const csrfToken = getCSRFToken(); // You need to define the getCSRFToken function
 
-                            <div type="button"
-                                style="width: 50px; height: 50px; overflow: hidden; border-radius: 50%; background-color: #99D1C9;"
-                                type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                {% if request.user.pfp.url is not None %}
-                                <img class="rounded user-pfp" alt="X" src="{{request.user.pfp.url}}"
-                                    style="width: 100%; height: 100%; object-fit: cover;object-position: center;">
-                                {%else%}
-                                <img class="rounded base-pfp" alt="X"
-                                    style="width: 100%; height: 100%; object-fit: cover;object-position: center;">
-                                {%endif%}
-                            </div>
-                            <ul class="dropdown-menu">
-                                <li><a class="dropdown-item" href="{% url  'view_profile' request.user.username %}"><i
-                                            class="fa fa-user" aria-hidden="true"></i>&nbsp;Profile</a></li>
-                                <li><a class="dropdown-item" href="{% url 'edit_profile' %}"><i class="fa fa-pen"
-                                            aria-hidden="true"></i>&nbsp;Edit Profile</a></li>
-                                <li><a class="dropdown-item" href="{% url 'logout' %}"><i class="fa fa-sign-out"
-                                            aria-hidden="true"></i>&nbsp;LogOut </a></li>
-                            </ul>
-                        </div>
+                        // Add the CSRF token to the request headers
+                        xhr.setRequestHeader('X-CSRFToken', csrfToken);
+                        xhr.setRequestHeader('Content-Type', 'application/json');
+                        xhr.send();
+
+                        xhr.onload = function () {
+                            if (xhr.status === 200) {
+                                // The photos were deleted successfully
+                                // Refresh the page to display the updated list of photos
+                                location.reload();
+                            } else {
+                                // An error occurred while deleting the photos
+                                // Display an error message to the user
+                                alert('An error occurred while deleting the photos. Please try again later.');
+                            }
+                        };
+                    }
 
 
-                        <div class="greet d-flex justify-content-center align-items-center">
-                            <strong style="color:#FED17E;"> Hello,</strong><strong class="nav-link user-name fw-bolder"
-                                style="color: #99D1C9;">{{request.user }}</strong>
-                        </div>
-                    </li>
-                    {% else %}
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'login' %}"><i class="fa fa-sign-in" aria-hidden="true"></i>
-                            Sign In</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'register' %}"><i class="fa fa-user-plus"
-                                aria-hidden="true"></i>
-                            Sign Up</a>
-                    </li>
+                    function getCSRFToken() {
+                        const cookieName = 'csrftoken';
+                        const cookies = document.cookie.split(';');
+                        for (let i = 0; i < cookies.length; i++) {
+                            const cookie = cookies[i].trim();
+                            if (cookie.startsWith(cookieName + '=')) {
+                                return cookie.substring(cookieName.length + 1);
+                            }
+                        }
+                        return null; // If the cookie is not found
+                    }
+
+                </script>
+            </div>
+        </div>
+    </div>
+
+
+
+
+    <div class="root">
+        <div class="user-name" style="display: none;">{{request.user}}</div>
+        <div class="left">
+            {% if request.resolver_match.url_name == 'gallery' %}
+            <div class="room">
+                {% block middle %}
+                {% endblock middle %}
+            </div>
+            {% elif request.resolver_match.url_name == 'global' or request.resolver_match.url_name == 'view_profile' %}
+            <div class="room">
+                {% block global %}
+                {% endblock global %}
+            </div>
+            {% else %}
+            {% if request.user_agent.is_mobile or request.user_agent.is_tablet %}
+            <div class="container-fluid global-photo mt-2" style="width: 100%; background-size: auto;">
+                {% else %}
+                <div class="container-fluid global-photo mt-2"
+                    style="height: 87vh; width: 100%; background-size: auto;">
                     {% endif %}
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </nav>
-
-
-
-
-    {% if request.resolver_match.url_name == 'gallery' %}
-    <div class="search-ham  container-fluid  d-flex justify-content-evenly align-items-center">
-        <span class="hamburger text-white" style="cursor:pointer; width: 20%;" onclick="openLeftNav()">&#9776;
-            Categories</span>
-        <script>
-            function openLeftNav() {
-                document.getElementById("mySidenav").style.width = "300px";
-            }
-
-            function closeLeftNav() {
-                document.getElementById("mySidenav").style.width = "0";
-            }   
-        </script>
-        <div id="mySidenav" class="sidenav mt-2">
-            <div class="d-flex justify-content-between align-items-center m-2">
-                <h3 class="text-center text-white">Categories</h3>
-                <a href="javascript:void(0)" style="font-size: 25px;" class="mb-2 closebtn"
-                    onclick="closeLeftNav()">&times;</a>
-            </div>
-            <ul class="list-group list-group-flush " style="background-color: #4E576F;">
-                <a class="list-group-item m-2 " href="{% url 'gallery' %}"
-                    style="background-color: #4E576F;color: white;">
-                    All
-                </a>
-                {% for category in categories%}
-                <div class="list-group-item m-2 d-flex justify-content-between align-items-center">
-                    <a style="text-decoration: none; color: white; width: 75%;  background-color:#4E576F ; "
-                        href="{% url 'gallery' %}?category={{ category.name }}">{{ category.name }}</a>
-                    <button style="background: none; border: none; color: #DC3545;" data-bs-toggle="modal"
-                        data-bs-target="#delCatModel_{{ category.id }}">
-                        <i class="fas fa-trash fa-lg mb-1"></i>
-                    </button>
+                    <a style="color: var(--text-color);"  href="{% url 'global' %}"><i class="fa-solid fa-backward fa-lg ms-2"></i> back</a>
+                    {% block content %}
+                    {% endblock content %}
                 </div>
-                <div class="modal fade " id="delCatModel_{{ category.id }}" tabindex="-1"
-                    aria-labelledby="delCatModelLabel_{{ category.id }}" aria-hidden="true">
-                    <div class="modal-dialog modal-sm modal-dialog-centered">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h1 class="modal-title fs-5" id="delCatModelLabel_{{ category.id }}">Delete
-                                    {{category.name}}</h1>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                    aria-label="Close"></button>
-                            </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                <a href="{% url 'delete_category' category_id=category.id %}"
-                                    class="btn btn-danger">Delete</a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                {%endfor %}
-            </ul>
-        </div>
-        <div class="d-flex justify-content-center align-items-center flex-column w-100">
-            <form action="" class="d-flex py-2" method="get" style="width: 50%;">
-                <input id="searchInput" class="form-control mr-sm-2 me-3" type="text"
-                    style="background-color:#c1cae3; outline: none; color: rgb(0, 0, 0);"
-                    placeholder="Search by category, description " aria-label="Search" name="searchImage"
-                    autocomplete="off">
-                <button class=" d-flex align-items-center btn btn-outline-primary"
-                    style="background-color: #4E576F; color: white;" type="submit">
-                    <i class="fa-solid fa-magnifying-glass fa-lg me-2" style="color: #ffffff;"></i></button>
-            </form>
-            <div class="searchTerm">
-                {% if searchTerm is not None %}
-                <small>Results for: {{searchTerm}}</small>
                 {% endif %}
             </div>
+            <div class="right">
+                <div class="d-flex flex-column justify-content-between align-items-center h-100 w-100">
+                    <div class="d-flex flex-column justify-content-around align-items-center w-100"
+                        style="height: 40%;">
+                        <div class="item d-flex align-items-center justify-content-center" data-tooltip="Home">
+                            <a href="{% url 'global' %}">
+                                <img class="logo d-flex justify-content-center align-items-center"
+                                    src="{% static 'photos/icons/gallery_logo_svg.svg' %}" alt="X" />
+                                <!-- <strong style="color:#FED17E">Photo</strong> <strong style="color: #99D1C9;">Booth</strong> -->
+                            </a>
+                        </div>
+                        <div class="item d-flex align-items-center justify-content-center" data-tooltip="Gallery">
+                            <a class="nav-link {% if request.resolver_match.url_name == 'gallery' %}active-link{% endif %}"
+                                href="{% url 'gallery' %}">
+                                <div class="d-flex align-items-center justify-content-start">
+                                    <i class="fas fa-home fa-xl mb-1 me-2"></i>
+                                </div>
+                            </a>
+                        </div>
+                        <div class="item d-flex align-items-center justify-content-center" data-tooltip="Global">
+                            <a class="nav-link {% if request.resolver_match.url_name == 'global' %}active-link{% endif %}"
+                                href="{% url 'global' %}">
+                                <div class="d-flex align-items-center justify-content-start">
+                                    <i class="fas fa-globe-americas fa-xl  mb-1 me-2"></i>
+                                    <!-- <span class="badge rounded-pill badge-notification bg-success"></span> -->
+                                </div>
+                            </a>
+                        </div>
+                        <div class="item d-flex align-items-center justify-content-center" data-tooltip="Add">
+                            <a class="nav-link {% if request.resolver_match.url_name == 'add' %}active-link{% endif %}"
+                                href="{% url 'add' %}">
+                                <div class="d-flex align-items-center justify-content-start">
+                                    <i class="fas fa-plus fa-xl mb-1 me-2"></i>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="d-flex flex-column justify-content-center align-items-center w-100"
+                        style="height: 20%;">
+                        {% if request.user.is_active %}
+
+                        <div class="item dropstart d-flex justify-content-center align-items-center image-pfp "
+                            data-tooltip="User">
+
+                            <div class="logo" type="button" style="overflow: hidden; border-radius: 50%; " type="button"
+                                data-bs-toggle="dropdown" aria-expanded="false">
+                                {% if request.user.pfp.url is not None %}
+                                <img class="rounded user-pfp" alt="X" src="{{ request.user.pfp.url }}"
+                                    style="width: 100%; height: 100%; object-fit: cover;object-position: center;" />
+                                {% else %}
+                                <img class="rounded base-pfp" alt="X"
+                                    style="width: 100%; height: 100%; object-fit: cover;object-position: center;" />
+                                {% endif %}
+                            </div>
+
+                            <ul class="dropdown-menu">
+                                <div>
+                                    <button class="dropdown-item" onclick="toggleTheme()">
+                                        <i class="fa fa-palette" aria-hidden="true"></i> &nbsp;Toggle theme </button>
+
+                                </div>
+                                <div>
+                                    <a class="dropdown-item" href="{% url 'view_profile' request.user.username %}"><i
+                                            class="fa fa-user" aria-hidden="true"></i>&nbsp;Profile</a>
+                                </div>
+                                <div>
+                                    <a class="dropdown-item" href="{% url 'edit_profile' %}"><i class="fa fa-pen"
+                                            aria-hidden="true"></i>&nbsp;Edit profile</a>
+                                </div>
+                                <div>
+                                    <a class="dropdown-item" href="{% url 'logout' %}"><i class="fa fa-sign-out"
+                                            aria-hidden="true"></i>&nbsp;Log out</a>
+                                </div>
+                            </ul>
+                            {% else %}
+                            <div class="item my-2 d-flex align-items-center justify-content-center" data-tooltip="Login">
+                                <a class="nav-link" href="{% url 'login' %}">
+                                    <i class="fa fa-sign-in fa-xl" aria-hidden="true"></i>
+                                </a>
+                            </div>
+                            <div class="item my-2 d-flex align-items-center justify-content-center" data-tooltip="Register">
+                                <a class="nav-link" href="{% url 'register' %}">
+                                    <i class="fa fa-user-plus fa-xl" aria-hidden="true"></i>
+                                </a>
+                            </div>
+                            {% endif %}
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
         </div>
-        <div id="rightSideNav" class="right-side-nav d-flex flex-column mt-3">
 
-            <div class="d-flex justify-content-between align-items-center m-2">
-                <a href="javascript:void(0)" style="font-size: 25px;" class="mb-2 closebtn"
-                    onclick="closeRightNav()">&times;</a>
-                <h4 class="text-center text-white">Select/Deselect All</h4>
-            </div>
-            <div class="mob-sel d-flex  justify-content-center align-items-center ">
-                <button name="select-all" id="selectAllButton" class="btn"
-                    style="background-color: #01f6d1;color: white;">
-                    <i class="fa fa-check"></i>
-                </button>
-                <button class="btn btn-danger ms-2" type="button" data-bs-toggle="modal" data-bs-target="#delImageModal"
-                    onclick="handleImageInfo()">
-                    <i class="fa fa-trash "></i>
-                </button>
-            </div>
 
-            <div id="selectedPhotosInfo" class="m-2">
 
-            </div>
-        </div>
 
-        <span class="hamburger text-white text-end" style="cursor:pointer;width: 20%;" onclick="openRightNav()">View
-            Images &#9776;</span>
+        <script src="https://cdn.jsdelivr.net/npm/masonry-layout@4.2.2/dist/masonry.pkgd.min.js"
+            integrity="sha384-GNFwBvfVxBkLMJpYMOABq3c+d3KnQxudP/mGPkzpZSTYykLBNsZEnG2D9G/X/+7D" crossorigin="anonymous"
+            async></script>
 
+        <script>
+            $(window).scroll(function () {
+                var scroll = $(window).scrollTop();
+                var navHeight = $('.navbar').height();
+                if (scroll >= navHeight) {
+                    $('.search-ham').addClass('sticky-background');
+                    $('.searchdiv').addClass('sticky-background');
+                } else {
+                    $('.search-ham').removeClass('sticky-background');
+                    $('.searchdiv').removeClass('sticky-background');
+                }
+            });
+        </script>
+        <script>
+            var currentURL = window.location.href;
+            var block = document.querySelector('.global-photo');
+            if (currentURL.includes('/mobile_photo/')) {
+                block.style.height = "inherit";
+
+            }
+            if (currentURL.includes('/edit/') || currentURL.includes('/add/') || currentURL.includes('/photo/')) {
+                document.querySelector('.top').style.display = "none";
+            }
+        </script>
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                var deviceWidth = window.innerWidth;
+                var top = document.querySelector('.top')
+                console.log(document.body.clientHeight, window.innerHeight)
+
+                if (document.body.clientHeight <= window.innerHeight) {
+                    if (top) top.style.display = "none";
+                }
+
+            });
+
+        </script>
+        <script>
+
+            let checkboxes, selectAllButton, selectedPhotosInfo = null;
+
+            function updateSelectedPhotosInfo() {
+                var selectedPhotos = [];
+
+                checkboxes.forEach(function (checkbox) {
+                    if (checkbox.checked) {
+                        var card = checkbox.closest(".card");
+                        var category = card.querySelector(".card-title").textContent.trim();
+                        var id = card.querySelector(".photo-id").getAttribute("data-id");
+                        selectedPhotos.push({ id: id, category: category, });
+                    }
+                });
+
+                if (selectedPhotos.length > 0) {
+                    var infoHtml = "<ul class='list-group  mt-2'>";
+                    selectedPhotos.forEach(function (photo) {
+                        infoHtml += "<div id='photo-detail' data-id=" + photo.id + " class='list-group-item  d-flex justify-content-between align-items-center'>" + '<span class="photo-name">' + photo.category + '</span>' +
+
+                            '<span> ' + " pid: " + photo.id +
+                            '</span>' + "</div>";
+                    });
+                    infoHtml += "</ul>";
+                    selectedPhotosInfo.innerHTML = infoHtml;
+                } else {
+                    selectedPhotosInfo.innerHTML = ""; // Clear the container if no photos are selected
+                }
+            }
+
+            function initializeScript() {
+
+
+                const username = document.querySelector('.user-name').textContent;
+                const userPFPSource = document.querySelector('.base-pfp');
+                if (userPFPSource !== null) userPFPSource.src = `https://api.dicebear.com/7.x/adventurer/svg?skinColor=9e5622,763900,ecad80&seed=${username}&`;
+
+                selectAllButton = document.getElementById("selectAllButton");
+                checkboxes = document.querySelectorAll("input[type='checkbox");
+                selectedPhotosInfo = document.getElementById("selectedPhotosInfo");
+
+                if (selectAllButton !== null) {
+                    selectAllButton.addEventListener("click", function () {
+                        const areAllChecked = Array.from(checkboxes).every((checkbox) => checkbox.checked);
+
+                        checkboxes.forEach((checkbox) => {
+                            checkbox.checked = !areAllChecked;
+                        });
+
+                        selectAllButton.innerHTML = areAllChecked ? "<i class='fa fa-check'></i>" : "<i class='fa fa-xmark'></i>";
+                        updateSelectedPhotosInfo();
+                    });
+                }
+                checkboxes.forEach(function (checkbox) {
+                    checkbox.addEventListener("change", function () {
+                        updateSelectedPhotosInfo();
+                    });
+                });
+            }
+
+            document.addEventListener('DOMContentLoaded', initializeScript);
+
+            document.addEventListener('htmx:afterOnLoad', function (event) {
+                selectAllButton = document.getElementById("selectAllButton");
+                checkboxes = document.querySelectorAll("input[type='checkbox");
+                selectedPhotosInfo = document.getElementById("selectedPhotosInfo");
+            });
+
+        </script>
         <script>
             function openRightNav() {
                 document.getElementById("rightSideNav").style.width = "300px";
@@ -326,307 +498,43 @@
             }
         </script>
     </div>
-    {% endif %}
-    {% if request.resolver_match.url_name == 'gallery' %}
-    <div class="room">
-        {% block middle %}
-        {% endblock middle %}
-    </div>
-    {% elif request.resolver_match.url_name == 'global' or request.resolver_match.url_name == 'view_profile' %}
-    <div class="room">
-        {%block global%}
-        {%endblock global%}
-    </div>
-    {% else %}
-    {% if request.user_agent.is_mobile or request.user_agent.is_tablet %}
-    <div class="container-fluid global-photo mt-2" style="height: inherit; width: 100%; background-size: auto;">
-        {% else %}
-        <div class="container-fluid global-photo mt-2" style="height: 87vh; width: 100%; background-size: auto;">
-            <a href="{% url 'global' %}"><i class="fa-solid fa-backward fa-lg ps-5" style="color: #000000;"></i></a>
-            {% endif %}
-            {% block content %}
-            {% endblock content %}
 
-
-
-            {% if request.user_agent.is_pc and photo and request.resolver_match.url_name != 'edit' %}
-            <div class=" d-flex justify-content-center flex-column  align-items-center w-100 mt-3"
-                style="height: fit-content;">
-                <h5 class="text-white me-2">EXPLORE PHOTOS</h5>
-                <svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" fill="currentColor"
-                    class="bi bi-arrow-down-circle ms-5" viewBox="0 0 50 50">
-                    <path fill-rule="evenodd"
-                        d="M1 8a7 7 0 1 0 14 0A7 7 0 0 0 1 8zm15 0A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM8.5 4.5a.5.5 0 0 0-1 0v5.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V4.5z" />
-                </svg>
-
-            </div>
-
-            <div class="row global-papa mx-auto mt-2">
-                {% for photo in photos %}
-                {% if photo.publicAccess %}
-                <a class="col-6 col-sm-4 col-md-3 col-lg-2 my-2 h-100 global-item" href="{% url 'photo' photo.id %}"
-                    hx-boost="fadeIn">
-                    <div class="example-2 card my-2 h-100">
-                        <div class="wrapper" style="background: url('{{ photo.image.url }}');">
-                            <div class="data">
-                                <div class="content">
-                                    <h6 class="title text-white mb-2">{{photo.category}}</h6>
-                                    <div class="d-flex justify-content-start align-items-center">
-                                        <div class="image-pfp"
-                                            style="width: 30px; height: 30px; overflow: hidden; border-radius: 50%;">
-                                            {% if photo.user.pfp.url is not None %}
-                                            <img class="rounded user-pfp" alt="X" src="{{photo.user.pfp.url}}"
-                                                style="width: 100%; height: 100%; object-fit: cover;object-position: center;">
-                                            {%else%}
-                                            <img class="rounded user-pfp2" alt="X"
-                                                src="https://api.dicebear.com/7.x/adventurer/svg?skinColor=9e5622,763900,ecad80&seed={{photo.user.username}}&"
-                                                style="width: 100%; height: 100%; object-fit: cover;object-position: center;">
-                                            {%endif%}
-                                        </div>
-                                        <span class="author ms-2 fs-5">{{photo.user}}</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </a>
-                {% endif %}
-                {% endfor%}
-
-                <div class="d-flex justify-content-center pb-5" hx-get="{% url 'photo' photo.id %}?page={{page|add:1}}"
-                    hx-trigger="revealed" hx-target="this" hx-swap="outerHTML">
-                    <div class="spinner-border " role="status">
-                        <span class="sr-only"></span>
-                    </div>
-                </div>
-            </div>
-
-            {%endif%}
-        </div>
-        {% endif %}
-
-
-        <div class="modal fade" id="delImageModal" tabindex="-1" aria-labelledby="delImageModalLabel"
-            aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h1 class="modal-title fs-5" id="delImageModalLabel">Delete Following images</h1>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body del-model">
-
-                    </div>
-                    <script>
-                        function handleImageInfo() {
-                            var modal = document.querySelector('.del-model')
-                            var listItems = document.querySelectorAll('#photo-detail');
-                            if (listItems.length == 0) {
-                                modal.innerHTML = "<h5>" + 'No photos to delete' + "</h5>";
-                                return;
-                            }
-                            var newLi = '';
-                            newLi += '<ul>'
-                            var count = 0;
-                            listItems.forEach(element => {
-                                count++;
-                                const spanElement = element.querySelector('.photo-name');
-                                if (spanElement)
-                                    newLi += '<li>' + spanElement.textContent + '</li>';
-                            });
-                            newLi += '</ul>'
-                            if (count >= 20) {
-                                modal.innerHTML = `Are you sure you want to delete ${count} photos?`
-                            } else {
-                                modal.innerHTML = newLi;
-                            }
-                        }
-                    </script>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                        <button type="button" onclick="handleDeleteImages()" class="btn btn-danger">Delete</button>
-                    </div>
-
-                    <script>
-                        function handleDeleteImages() {
-                            const selectedPhotos = document.querySelectorAll('#photo-detail');
-                            const photoIDs = [];
-
-                            // Ensure that photoIDs array contains valid IDs and remove any empty or invalid values
-                            selectedPhotos.forEach(photo => {
-                                const id = photo.dataset.id;
-                                if (id) {
-                                    photoIDs.push(id);
-                                }
-                            });
-
-                            // Check if there are valid photo IDs to delete
-                            if (photoIDs.length === 0) {
-                                alert('No photos selected for deletion.');
-                                return;
-                            }
-
-                            const xhr = new XMLHttpRequest();
-                            const url = `delete_images?photo_ids=${photoIDs.join(',')}`;
-                            xhr.open('DELETE', url);
-
-                            // Get the CSRF token from a function, assuming you have a function to retrieve it
-                            const csrfToken = getCSRFToken(); // You need to define the getCSRFToken function
-
-                            // Add the CSRF token to the request headers
-                            xhr.setRequestHeader('X-CSRFToken', csrfToken);
-                            xhr.setRequestHeader('Content-Type', 'application/json');
-                            xhr.send();
-
-                            xhr.onload = function () {
-                                if (xhr.status === 200) {
-                                    // The photos were deleted successfully
-                                    // Refresh the page to display the updated list of photos
-                                    location.reload();
-                                } else {
-                                    // An error occurred while deleting the photos
-                                    // Display an error message to the user
-                                    alert('An error occurred while deleting the photos. Please try again later.');
-                                }
-                            };
-                        }
-
-
-                        function getCSRFToken() {
-                            const cookieName = 'csrftoken';
-                            const cookies = document.cookie.split(';');
-                            for (let i = 0; i < cookies.length; i++) {
-                                const cookie = cookies[i].trim();
-                                if (cookie.startsWith(cookieName + '=')) {
-                                    return cookie.substring(cookieName.length + 1);
-                                }
-                            }
-                            return null; // If the cookie is not found
-                        }
-
-                    </script>
-                </div>
-            </div>
-        </div>
-
-        <a href="#" class="top">Top &#8593;</a>
-
-</body>
-
-<script>
-    $(window).scroll(function () {
-        var scroll = $(window).scrollTop();
-        var navHeight = $('.navbar').height();
-
-        if (scroll >= navHeight) {
-            $('.search-ham').addClass('sticky-background');
-            $('.searchdiv').addClass('sticky-background');
-        } else {
-            $('.search-ham').removeClass('sticky-background');
-            $('.searchdiv').removeClass('sticky-background');
-        }
-    });
-</script>
-
-<script>
-    var currentURL = window.location.href;
-    var block = document.querySelector('.global-photo');
-    if (currentURL.includes('/mobile_photo/')) {
-        block.style.height = "inherit";
-
-    }
-    if (currentURL.includes('/edit/') || currentURL.includes('/add/') || currentURL.includes('/photo/')) {
-        document.querySelector('.top').style.display = "none";
-    }
-</script>
-<script>
-    document.addEventListener('DOMContentLoaded', () => {
-        var deviceWidth = window.innerWidth;
-        var top = document.querySelector('.top')
-        console.log(document.body.clientHeight, window.innerHeight)
-
-        if (document.body.clientHeight <= window.innerHeight) {
-            if (top) top.style.display = "none";
+    <script>
+        function openLeftNav() {
+            document.getElementById("mySidenav").style.width = "300px";
         }
 
-    });
-
-</script>
-<script>
-
-    let checkboxes, selectAllButton, selectedPhotosInfo = null;
-
-    function updateSelectedPhotosInfo() {
-        var selectedPhotos = [];
-
-        checkboxes.forEach(function (checkbox) {
-            if (checkbox.checked) {
-                var card = checkbox.closest(".card");
-                var name = card.querySelector(".text").textContent.trim();
-                var category = card.querySelector('.title').textContent.trim()
-                var id = card.querySelector(".photo-id").getAttribute("data-id");
-                selectedPhotos.push({ id: id, name: name, category: category });
+        function closeLeftNav() {
+            document.getElementById("mySidenav").style.width = "0";
+        }   
+    </script>
+    <script src="https://unpkg.com/imagesloaded@4/imagesloaded.pkgd.min.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            var grid = document.querySelector(".row[data-masonry]");
+            const savedTheme = localStorage.getItem("theme") || "dark";
+            document.documentElement.setAttribute("data-theme", savedTheme);
+            if (grid) {
+                imagesLoaded(grid, function () {
+                    var masonryInstance = new Masonry(grid, {
+                        percentPosition: true
+                    });
+                    masonryInstance.layout(); // Force Masonry to correctly align images
+                });
             }
         });
-
-        if (selectedPhotos.length > 0) {
-            var infoHtml = "<ul class='list-group  mt-2'>";
-            selectedPhotos.forEach(function (photo) {
-                infoHtml += "<li id='photo-detail' data-id=" + photo.id + " class='list-group-item  d-flex justify-content-between align-items-center'style='background-color: #4E576F;color:white;'>" + '<span class="photo-name">' + photo.name + '</span>' + " <br>" + '<span >' + photo.category + '</span>' + "</li>";
-            });
-            infoHtml += "</ul>";
-            selectedPhotosInfo.innerHTML = infoHtml;
-        } else {
-            selectedPhotosInfo.innerHTML = ""; // Clear the container if no photos are selected
+        function toggleTheme() {
+            const currentTheme = document.documentElement.getAttribute("data-theme");
+            const newTheme = currentTheme === "dark" ? "light" : "dark";
+            document.documentElement.setAttribute("data-theme", newTheme);
+            localStorage.setItem("theme", newTheme);
         }
-    }
-
-    function initializeScript() {
-
-
-        const username = document.querySelector('.user-name').textContent;
-        const userPFPSource = document.querySelector('.base-pfp');
-        if (userPFPSource !== null) userPFPSource.src = `https://api.dicebear.com/7.x/adventurer/svg?skinColor=9e5622,763900,ecad80&seed=${username}&`;
-
-        selectAllButton = document.getElementById("selectAllButton");
-        checkboxes = document.querySelectorAll("input[type='checkbox");
-        selectedPhotosInfo = document.getElementById("selectedPhotosInfo");
-
-        if (selectAllButton !== null) {
-            selectAllButton.addEventListener("click", function () {
-                const areAllChecked = Array.from(checkboxes).every((checkbox) => checkbox.checked);
-
-                checkboxes.forEach((checkbox) => {
-                    checkbox.checked = !areAllChecked;
-                });
-
-                selectAllButton.innerHTML = areAllChecked ? "<i class='fa fa-check'></i>" : "<i class='fa fa-xmark'></i>";
-                updateSelectedPhotosInfo();
-            });
-        }
-        checkboxes.forEach(function (checkbox) {
-            checkbox.addEventListener("change", function () {
-                updateSelectedPhotosInfo();
-            });
-        });
-    }
-
-    document.addEventListener('DOMContentLoaded', initializeScript);
-
-    document.addEventListener('htmx:afterOnLoad', function (event) {
-        selectAllButton = document.getElementById("selectAllButton");
-        checkboxes = document.querySelectorAll("input[type='checkbox");
-        selectedPhotosInfo = document.getElementById("selectedPhotosInfo");
-    });
+    </script>
 
 
 
 
 
-
-
-</script>
-
-
+</body>
 
 </html>

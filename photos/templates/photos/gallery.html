@@ -1,60 +1,191 @@
 {% extends "base.html" %}
 {%load static%}
-<div class="row">
+{% block middle %}
 
-    {% block middle %}
 
-    <div class="row mx-auto">
-        {% for photo in photos%}
-        <a class="col-6 col-sm-4 col-md-3 col-lg-2 my-2 h-100" href="{% url 'photo' photo.id %}">
-            <!-- <div class="col-6 col-sm-4 col-md-3 col-lg-2 my-2 h-100"> -->
-                <div class="example-2 card my-2 h-100">
-                    <span class="photo-id" style="display: none;" data-id="{{ photo.id }}"></span>
-                    <div class="wrapper" style="background: url('{{ photo.image.url }}');">
-                        <input type="checkbox" name="select" id=""
-                            style="position: absolute;top: 8px;right: 8px; width: 20px;height: 20px;">
-                        <div class="header">
-                            <div class="date">
-                                <span>{{photo.upload_datetime}}</span>
-                            </div>
+
+<div class="global-search-ham py-2 d-flex justify-content-center align-items-center">
+    <span class="hamburger mx-2" style="cursor:pointer; width: 20%;" onclick="openLeftNav()">&#9776;
+        {% if not request.user_agent.is_mobile %}Filter categories{% endif %}
+        </span>
+    <div id="mySidenav" class="sidenav ">
+        <div class="d-flex justify-content-between align-items-center m-2">
+            <h3 class="text-center ">Categories</h3>
+            <a href="javascript:void(0)" style="font-size: 25px;" class="mb-2 closebtn"
+                onclick="closeLeftNav()">&times;</a>
+        </div>
+        <span class=" ms-3">Select a category to filter images</span>
+        <ul class="list-group list-group-flush" >
+
+            <!-- All -->
+            <a class="list-group-item m-2 {% if not request.GET.type and not request.GET.category %} active {% endif %}"
+               href="{% url 'gallery' %}"
+               >
+                All
+            </a>
+        
+            <!-- Public -->
+            <a class="list-group-item m-2 {% if request.GET.type == 'public' %} active {% endif %}"
+               href="{% url 'gallery' %}?type=public"
+               >
+                Public
+            </a>
+        
+            <!-- Private -->
+            <a class="list-group-item m-2 {% if request.GET.type == 'private' %} active {% endif %}"
+               href="{% url 'gallery' %}?type=private"
+               >
+                Private
+            </a>
+        
+            {% for category in categories %}
+            <div class="list-group-item m-2 d-flex justify-content-between align-items-center 
+                {% if request.GET.category == category.name %} active {% endif %}">
+                
+                <!-- Category Link -->
+                <a style="text-decoration: none;  width: 75%;"
+                   href="{% url 'gallery' %}?category={{ category.name }}{% if request.GET.type %}&type={{ request.GET.type }}{% endif %}">
+                    {{ category.name }}
+                </a>
+        
+                <!-- Delete Button -->
+                <button style="background: none; border: none; color: #DC3545;"
+                        data-bs-toggle="modal"
+                        data-bs-target="#delCatModel_{{ category.id }}"
+                        title="Delete {{ category.name }}">
+                    <i class="fas fa-trash fa-lg mb-1"></i>
+                </button>
+            </div>
+            
+            <!-- Delete Confirmation Modal -->
+            <div class="modal fade" id="delCatModel_{{ category.id }}" tabindex="-1"
+                 aria-labelledby="delCatModelLabel_{{ category.id }}" aria-hidden="true">
+                <div class="modal-dialog modal-sm modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h1 class="modal-title fs-5" id="delCatModelLabel_{{ category.id }}">⚠️ Delete {{ category.name }} and all photos of it!</h1>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
-                        <div class="data">
-                            <div class="content">   
-                                <h6 class="title text-white" >{{photo.category}}</h6>
-                                <!-- <span class="author fs-5">{{photo.user}}</span> -->
-                                <hr>
-                                <span href="{% url 'photo' photo.id %}" class="button">Check out</span>
-                                <p class="text" style="display: none;">{{photo.description| slice:"25"}}</p>
-                            </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            <a href="{% url 'delete_category' category_id=category.id %}" class="btn btn-danger">Delete</a>
                         </div>
                     </div>
                 </div>
-            <!-- </div> -->
-        </a>
-            {% empty %}
-            <div class="d-flex flex-column justify-content-center align-items-center mt-5">
-                <h2 class="text-white text-center">Welcome to <strong style="color:#FED17E">Photo</strong> <strong
-                        style="color: #99D1C9;">Booth</strong></h2>
-                <h6 class="text-center text-white">Start Uploading image to your booth now!! Just click Add</h6>
-                <div class="x">
-                    <img style="width: 300px; height: 300px;" src="{% static 'photos/icons/gallery_logo_svg.svg'%}"
-                        alt="X">
-                </div>
-
             </div>
+            {% endfor %}
+        </ul>
         
-        {% endfor%}
-        <div class="d-flex justify-content-center pb-5"
-            hx-get="{% if searchTerm %}{% url 'gallery' %}?searchImage={{searchTerm}}&page={{page|add:1}}{% elif category %}{% url 'gallery' %}?category={{category}}&page={{page|add:1}}{%else%}{% url 'gallery' %}?page={{page|add:1}}{% endif %}"
-            hx-trigger="revealed" hx-target="this" hx-swap="outerHTML" hx-trigger="htmx:afterSwap">
-            <div class="spinner-border " role="status">
-                <span class="sr-only"></span>
+    </div>
+    <div class="searchdiv d-flex justify-content-center align-items-center flex-column w-100">
+        <form action="" class="global-search  d-flex mx-2" method="get">
+            <input class="form-control mr-smy-2 me-3" type="text"
+                style=" outline: none;"
+                placeholder="Search by category, description or username" aria-label="Search" name="searchImage"
+                autocomplete="off" value="{{ request.GET.searchImage|default:'' }}">
+
+            <button class=" d-flex align-items-center btn btn-outline-primary"
+                type="submit">
+                <i class="fa-solid fa-magnifying-glass fa-lg" style="color: #ffffff;"></i></button>
+        </form>
+    </div>
+    {% if not request.user_agent.is_mobile %}
+    <span class="hamburger  text-end mx-2" style="cursor:pointer;width: 20%;"
+        onclick="openRightNav()">        {% if not request.user_agent.is_mobile %}Selected Images{% endif %}
+        &#9776;</span>
+    {% else %}
+    <span class="hamburger  text-end mx-2" style="cursor:pointer;"
+    onclick="openRightNav()">        
+    &#9776;</span>
+    {% endif %}
+  
+        
+    <div id="rightSideNav" class="right-side-nav d-flex flex-column ">
+
+        <div class="d-flex justify-content-between align-items-center m-2">
+            <a href="javascript:void(0)" style="font-size: 25px;" class="mb-2 closebtn"
+                onclick="closeRightNav()">&times;</a>
+            <h4 class="text-center ">Select/Deselect images</h4>
+        </div>
+        <div class="mob-sel d-flex  justify-content-center align-items-center ">
+            <button name="select-all" id="selectAllButton" class="btn">
+                <i class="fa fa-check"></i>
+            </button>
+            <button class="btn btn-danger ms-2" type="button" data-bs-toggle="modal" data-bs-target="#delImageModal"
+                onclick="handleImageInfo()">
+                <i class="fa fa-trash "></i>
+            </button>
+        </div>
+
+        <div id="selectedPhotosInfo" class="m-2">
+
+        </div>
+    </div>
+</div>
+
+<div class="row pt-2   my-5 global-papa w-100 mx-auto " data-masonry='{"percentPosition": true }'
+    style="margin-left: -0.5rem; margin-right: -0.5rem;">
+    {% for photo in photos%}
+    <a class="col-6 col-sm-4 col-md-3 col-lg-2 my-2" href="{% url 'photo' photo.id %}">
+        <div class="card ">
+            <span class="photo-id" style="display: none;" data-id="{{ photo.id }}"></span>
+            <img src="{{photo.image.url}}" class="card-img-top" alt="...">
+            <div class="overlay d-flex justify-content-around align-items-center"
+                style="background: rgba(0, 0, 0, 0.4);">
+                <h6 class="card-title w-50">{{ photo.category }}</h6>
+                <div class="d-flex justify-content-center align-items-center w-50">
+                    {% if photo.publicAccess %}
+                    <i class="px-2 fa-solid fa-heart" style="color: #ff0000;"></i>
+                    <span>{{photo.likes.count}}</span>
+                    {%endif%}
+                    <input type="checkbox" name="select" id="" class="photo-checkbox ms-2"
+                        style=" width: 20px;height: 20px;" onclick="handleSideNav()">
+                </div>
             </div>
+        </div>
+    </a>
+    {% empty %}
+    <div class="d-flex flex-column justify-content-center align-items-center mt-5">
+        <h2 class=" text-center">Welcome to <strong style="color:#FED17E">Photo</strong> <strong
+                style="color: #99D1C9;">Booth</strong></h2>
+        <h6 class="text-center ">Start Uploading image to your booth now!! Just click Add</h6>
+        <div class="x">
+            <img style="width: 300px; height: 300px;" src="{% static 'photos/icons/gallery_logo_svg.svg'%}" alt="X">
         </div>
 
     </div>
 
-
-    {% endblock middle %}
+    {% endfor%}
+    <div class="d-flex justify-content-center pb-5"
+        hx-get="{% if searchTerm %}{% url 'gallery' %}?searchImage={{searchTerm}}&page={{page|add:1}}{% elif category %}{% url 'gallery' %}?category={{category}}&page={{page|add:1}}{%else%}{% url 'gallery' %}?page={{page|add:1}}{% endif %}"
+        hx-trigger="revealed" hx-target="this" hx-swap="outerHTML" hx-trigger="htmx:afterSwap">
+        <div class="spinner-border " role="status">
+            <span class="sr-only"></span>
+        </div>
+    </div>
 
 </div>
+<script>
+    function handleSideNav() {
+        let checkboxes = document.querySelectorAll(".photo-checkbox");
+        let sideNav = document.getElementById("rightSideNav");
+
+        // Check if any checkbox is checked
+        let isChecked = Array.from(checkboxes).some(checkbox => checkbox.checked);
+
+        // Show or hide the side navigation based on selection
+        if (isChecked) {
+            sideNav.style.width = "300px";
+        } else {
+            sideNav.style.width = "0px"; // Close the side nav (adjust as needed)
+        }
+    }
+
+    // Attach event listeners to all checkboxes
+    document.querySelectorAll(".photo-checkbox").forEach(checkbox => {
+        checkbox.addEventListener("change", handleSideNav);
+    });
+</script>
+
+
+{% endblock middle %}

@@ -31,15 +31,12 @@ load_dotenv()
 SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 
-ALLOWED_HOSTS = [
-    "localhost",
-    "127.0.0.1",
-    "photobooth.up.railway.app",
-]
-CSRF_TRUSTED_ORIGINS = ["https://photobooth.up.railway.app/", "https://photobooth.up.railway.app"]
+ALLOWED_HOSTS = ["127.0.0.1", "localhost", "yourdomain.com"]
+
+CSRF_TRUSTED_ORIGINS = ["https://127.0.0.1",]
 AUTH_USER_MODEL = "users.User"
 # Application definition
 
@@ -49,7 +46,6 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    # "photos",
     "django.contrib.auth",
     "photos.apps.PhotosConfig",
     "users.apps.UsersConfig",
@@ -107,24 +103,28 @@ WSGI_APPLICATION = "photobooth.wsgi.application"
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
 
-DATABASES = {
+
+
+if DEBUG == True:   
+    DATABASES = {
+            "default": {
+                "ENGINE": "django.db.backends.sqlite3",
+                "NAME": BASE_DIR / "db.sqlite3",
+                
+            }
+        }
+else:
+    DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
-        "NAME": "railway",
-        "USER": "postgres",
+        "NAME": "postgres",
+        "USER": "postgres.zkcynaqsyzdvffnstqrt",
         "PASSWORD": os.environ.get("PGPASSWORD"),
         "HOST": os.environ.get("PGHOST"),
         "PORT": os.environ.get("PGPORT"),
+         "CONN_MAX_AGE": 600,
     }
 }
-
-# if DEBUG == True:
-#     DATABASES = {
-#         "default": {
-#             "ENGINE": "django.db.backends.sqlite3",
-#             "NAME": BASE_DIR / "db.sqlite3",
-#         }
-#     }
 
 
 # Password validation

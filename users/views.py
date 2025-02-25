@@ -22,6 +22,13 @@ def edit_profile(request):
         if request.FILES.get('pfp') is not None:
             user.pfp = request.FILES.get("pfp")
         user.user_bio = request.POST.get("bio")
+        if len(user.user_bio) > 500:
+            error_message = "Bio cannot be more than 500 characters."
+            return render(request, "users/edit_profile.html", {"error_message": error_message})
+        if len(fullname) > 25:
+            error_message = "Name cannot be more than 25 characters."
+            return render(request, "users/edit_profile.html", {"error_message": error_message})
+        
         full_name_parts = fullname.split()
         user.first_name = full_name_parts[0] if full_name_parts else ""
         user.last_name = full_name_parts[1] if len(full_name_parts) > 1 else ""

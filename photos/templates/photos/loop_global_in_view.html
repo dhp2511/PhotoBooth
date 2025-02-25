@@ -1,38 +1,27 @@
-{%load static%} 
+{% load static %}
 {% for photo in photos %}
 {% if photo.publicAccess %}
-<a class="col-6 col-sm-4 col-md-3 col-lg-2 my-2 h-100 global-item" href="{% url 'photo' photo.id %}" hx-boost="fadeIn">
-    <div class="example-2 card my-2 h-100">
-        <div class="wrapper" style="background: url('{{ photo.image.url }}');">
-            <div class="data">
-                <div class="content">
-                    <h6 class="title text-white mb-2">{{photo.category}}</h6>
-                    <div class="d-flex justify-content-start align-items-center">
-                        <div class="image-pfp" style="width: 30px; height: 30px; overflow: hidden; border-radius: 50%;">
-                            {% if photo.user.pfp.url is not None %}
-                            <img class="rounded user-pfp" alt="X" src="{{photo.user.pfp.url}}"
-                                style="width: 100%; height: 100%; object-fit: cover;object-position: center;">
-                            {%else%}
-                            <img class="rounded user-pfp2" alt="X"
-                                src="https://api.dicebear.com/7.x/adventurer/svg?skinColor=9e5622,763900,ecad80&seed={{photo.user.username}}&"
-                                style="width: 100%; height: 100%; object-fit: cover;object-position: center;">
-                            {%endif%}
-                        </div>
-                        <span class="author ms-2 fs-5">{{photo.user}}</span>
-                    </div>
-
-                </div>
+<a class="col-6 col-sm-4 col-md-3 col-lg-2 my-2 global-item" href="{% url 'photo' photo.id %}" hx-boost="fadeIn">
+    <div class="card ">
+        <img src="{{photo.image.url}}" class="card-img-top" alt="...">
+        <div class="overlay d-flex justify-content-around align-items-center"
+            style="background: rgba(0, 0, 0, 0.4);">
+            <h6 class="card-title w-50">{{ photo.category }}</h6>
+            <div class="d-flex justify-content-center align-items-center w-50">
+                <i class="px-2 fa-solid fa-heart" style="color: #ff0000;"></i>
+                <span>{{photo.likes.count}}</span>
             </div>
         </div>
     </div>
 </a>
+
 {% endif %}
+{% empty %}
+<h3>No Photos yet..</h3>
 {% endfor%}
 
-<div class="d-flex justify-content-center pb-5"
-    hx-get="{% url 'photo' photo.id %}?page={{page|add:1}}"
-    hx-trigger="revealed" hx-target="this" hx-swap="outerHTML">
-    <div class="spinner-border " role="status">
-        <span class="sr-only"></span>
-    </div>
+<div class="d-flex justify-content-center pb-5" hx-get="{% url 'photo' photo.id %}?page={{ page|add:1 }}" hx-trigger="revealed" hx-target="this" hx-swap="outerHTML">
+  <div class="spinner-border" role="status">
+    <span class="sr-only"></span>
+  </div>
 </div>

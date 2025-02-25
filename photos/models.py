@@ -36,10 +36,12 @@ class Photo(models.Model):
                     "tif",
                     "gif",
                     "heif",
+                    "avif"
                 ]
             )
         ],
     )
+    image_type = models.CharField(max_length=10, blank=True, null=True)
     publicAccess = models.BooleanField(default=False, null=False, blank=False)
     description = models.TextField()
     upload_datetime = models.DateTimeField(auto_now_add=True)

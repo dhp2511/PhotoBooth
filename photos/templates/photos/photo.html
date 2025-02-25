@@ -1,49 +1,96 @@
 {% extends "base.html" %}
 {% load static %}
 {% block content %}
+<div class="toast align-items-center border-0 position-fixed top-0 start-50 translate-middle-x z-3"
+    style="background-color:#4E576F; margin-top: 10px;" role="alert" aria-live="assertive" aria-atomic="true">
+    <div class="d-flex">
+        <div class="toast-body ">
+            Link copied to clipboard!
+        </div>
+        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"
+            aria-label="Close"></button>
+    </div>
+</div>
 
-<div class="photo-wrapper d-flex justify-content-evenly" style='height:90% ;width:100%'>
+<div class="photo-wrapper d-flex justify-content-evenly align-items-center" style='height:100% ;width:100%'>
     {% if photo.publicAccess %}
-    <div class="main-photo" style="height: 100%; width:65%">
+    <div class="main-photo d-flex justify-content-center align-items-center flex-column"
+        style="height: 100%; width:65%;">
         <div style="height: 90%; position: relative; width: 100%;">
-
             <div class="imghere d-flex align-content-center justify-content-center"
                 style="height: 100%; width: 100%;flex-wrap: wrap;">
-
-                <img style="width: fit-content; height: 100%;border-radius: 20%;" src="{{photo.image.url}}"
-                    class="card-img-top img-fluid rounded" id="mainImage" alt="...">
-
+                <img style="width: fit-content; height: 80%;" src="{{photo.image.url}}"
+                    class="card-img-top img-fluid rounded" id="myImg" alt="{{photo.category}}">
             </div>
-
         </div>
 
-        <div style="height: 5%; padding-top:2%;">
-            <div class="photo-info d-flex justify-content-between ps-5 pe-5 pt-2" style="font-size: 1.1vw;">
-                <div class="toast align-items-center border-0 " style="background-color:#4E576F;" role="alert"
-                    aria-live="assertive" aria-atomic="true">
-                    <div class="d-flex z-3">
-                        <div class="toast-body text-white">
-                            Link copied to clipboard!
-                        </div>
-                        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"
-                            aria-label="Close"></button>
-                    </div>
-                </div>
+        <div class="w-100" style="height: 10%;">
+            <div class="photo-info d-flex justify-content-between pt-2" style="font-size: 1.1vw;">
                 {%if photo.user == request.user %}
-                <a type="button" name="edit-info-btn" href="{% url 'edit' photo.id %}"
-                    style="border: none; background:transparent;color: #000;">Edit
-                    <i class="fa-solid fa-pen-to-square fa-xl ms-2" style="color: #005eff;"></i>
+                <a class="d-flex justify-content-center align-items-center" type="button" name="edit-info-btn"
+                    href="{% url 'edit' photo.id %}"
+                    style="border: none; background:transparent;width: 25%;">Edit
+                    <i class="fa-solid fa-pen-to-square fa-xl ms-2" ></i>
                 </a>
                 {%endif%}
-                <div class="date">
+                <div class="interact-buttons d-flex justify-content-evenly align-items-center "
+                    style="height: 50%; width: 50%;">
+                    <form action="{% url 'like_photo' photo.id %}" method="post">
+                        {% csrf_token %}
+                        <span class="">{{photo.likes.count}}</span>
+                        <button type="submit" class="like-button">
+                            {% if request.user in photo.likes.all %}
+                            <i class="fa-solid fa-heart" style="color: red;"></i>
+                            {%else%}
+                            <i class="fa-regular fa-heart" ></i>
+                            {% endif %}
+                        </button>
+                    </form>
+
+                    <div class="comms">
+                        <span class="">{{photo.comments.count}}</span>
+                        <button type="submit" class="comment-button">
+                            <i class="fa-regular fa-comment" aria-hidden="true" ></i>
+                        </button>
+                    </div>
+                    <button type="button" id="toastbtn" class="share-button "> <i class="fa fa-share"
+                            aria-hidden="true"></i>
+                    </button>
+                    <script>
+                        document.getElementById("toastbtn").onclick = function () {
+                            var currentUrl = window.location.href; // Get the current page URL
+                    
+                            console.log(currentUrl); // Debugging
+                            navigator.clipboard.writeText(currentUrl).then(() => {
+                                // Show toast notification
+                                var toastElList = [].slice.call(document.querySelectorAll('.toast'))
+                                var toastList = toastElList.map(function (toastEl) {
+                                    return new bootstrap.Toast(toastEl)
+                                })
+                                toastList.forEach(toast => toast.show())
+                            }).catch(err => console.error("Failed to copy:", err));
+                        };
+                    </script>
+
+                    <a href="{{photo.image.url}}" class="save-button " download> <i class="fa fa-download"
+                            aria-hidden="true"></i></a>
+
+                    <script type="text/javascript">
+                        var download = document.querySelector('.save-button');
+                        var a = download.getAttribute('href');
+                        a = a.replace('/upload/', '/upload/fl_attachment/');
+                        download.setAttribute('href', a); 
+                    </script>
+                </div>
+                <div class="date w-25 ">
                     {{photo.upload_datetime}}
                 </div>
             </div>
         </div>
     </div>
-    <div class="user-interact d-flex justify-content-between align-items-center flex-column ms-2"
-        style="height: 100%; width: 30%; border: 1px solid gray; border-radius: 16px;">
-        <div class="desc_name p-2" style="height:80%; width: 100%;  overflow: hidden;">
+    <div class="user-interact d-flex justify-content-between align-items-center flex-column "
+        style="height: 100%; width: 30%;  border-radius: 16px;">
+        <div class="desc_name p-2" style="height:90%; width: 100%;  overflow: hidden;">
 
             <div class="user-info d-flex justify-content-start align-items-center mb-2">
                 <a href="{% url 'view_profile' photo.user.username %}">
@@ -63,21 +110,20 @@
                     <strong>{{photo.user}}</strong>
                 </div>
             </div>
-            <hr>
-            <div class="comments mt-2 px-2" style="height: 80%; width: 100%;overflow-y: scroll;">
-
-                <div class="description text-white">
+            <hr >
+            <div class="comments mt-2 px-2">
+                <div class="description ">
                     <small>Category: {{photo.category}}</small>
                     <p class="text" style="font-family: 'Times New Roman' " , Times, serif;">
                         <strong>Description:</strong>
                         {{photo.description}}
                     </p>
                 </div>
-                <hr>
+                <hr >
 
                 {%for comment in comments%}
                 <div class="d-flex justify-content-between align-items-center ">
-                    <div class="comment text-black d-flex my-2 px-2">
+                    <div class="comment  d-flex my-2 px-2">
                         <a href="{% url 'view_profile' comment.user.username %}">
                             <div class="image-pfp me-3"
                                 style="width: 40px; height: 40px; overflow: hidden; border-radius: 50%; background-color: #99D1C9;">
@@ -92,7 +138,7 @@
                             </div>
                         </a>
                         <div class="d-flex justify-content-center align-items-center ">
-                            <p style="color: white;font-size: 1.1vw; word-wrap: break-word;" class="text-start"><strong
+                            <p style="font-size: 1.1vw; word-wrap: break-word;" class="text-start"><strong
                                     style="color: #FED17E; font-size: 1.1vw;">{{comment.user}}:</strong>
                                 {{comment.text}}</p>
                         </div>
@@ -104,69 +150,22 @@
                 </div>
                 {%endfor%}
                 {% if comments|length == 0 %}
-                <h4>No comments yet...</h4>
+                <h4 class="">No comments yet...</h4>
                 {%endif%}
             </div>
         </div>
 
-        <div class="interact d-flex flex-column p-2" style="height:20%;width: 100%;">
-            <div class="interact-buttons mt-3 d-flex justify-content-evenly align-items-center mb-2"
-                style="height: 50%;">
-                <form action="{% url 'like_photo' photo.id %}" method="post">
-                    {% csrf_token %}
-                    <span class="text-white">{{photo.likes.count}}</span>
-                    <button type="submit" class="like-button">
-                        {% if request.user in photo.likes.all %}
-                        <i class="fa-solid fa-thumbs-up" style="color: #FED17E;"></i>
-                        {%else%}
-                        <i class="fa-regular fa-thumbs-up" style="color: white;"></i>
-                        {% endif %}
-                    </button>
-                </form>
-
-                <div class="comms">
-                    <span class="text-white">{{photo.comments.count}}</span>
-                    <button type="submit" class="comment-button">
-                        <i class="fa-regular fa-comment" aria-hidden="true" style="color: white;"></i>
-                    </button>
-                </div>
-                <button type="button" id="toastbtn" class="share-button text-white"> <i class="fa fa-share"
-                        aria-hidden="true"></i>
-                </button>
-                <script>
-                    document.getElementById("toastbtn").onclick = function () {
-                        var photoUrl = document.querySelector('#mainImage');
-                        console.log(photoUrl.src)
-                        navigator.clipboard.writeText(photoUrl.src);
-                        var toastElList = [].slice.call(document.querySelectorAll('.toast'))
-                        var toastList = toastElList.map(function (toastEl) {
-                            return new bootstrap.Toast(toastEl)
-                        })
-                        toastList.forEach(toast => toast.show())
-                    }
-
-                </script>
-
-                <a href="{{photo.image.url}}" class="save-button text-white" download> <i class="fa fa-download"
-                        aria-hidden="true"></i></a>
-
-                <script type="text/javascript">
-                    var download = document.querySelector('.save-button');
-                    var a = download.getAttribute('href');
-                    a = a.replace('/upload/', '/upload/fl_attachment/');
-                    download.setAttribute('href', a); 
-                </script>
-            </div>
-            <div class="comment-div ms-1" style="height:50%;width: 100%; border-top: 1px solid gray;">
-                <form class="mt-2 d-flex justify-content-center align-items-center"
+        <div class="interact d-flex flex-column px-2 " style="width: 100%; height: 10%;">
+            <div class="comment-div " style="height:100%;width: 100%; border-top: 1px solid gray;">
+                <form class="d-flex justify-content-center align-items-center"
                     action="{% url 'comment_photo' photo.id %}" class="comment-form mb-3"
                     style="height: 100%; width: 100%;" method="post">
                     {% csrf_token%}
                     <input autocomplete="off" type="text" name="text" placeholder="Add a comment..."
                         class="comment-input  mb-2 me-2" required
-                        style="background:transparent; outline: none; color: rgb(255, 255, 255); caret-color: white;">
+                        style="background:transparent; outline: none;  ">
                     <button type="submit" class="comment-submit btn  mb-2 me-2 "
-                        style="background-color: #4E576F; color: white;">Post</button>
+                        >Post</button>
                 </form>
             </div>
             <script>
@@ -178,26 +177,23 @@
             </script>
         </div>
     </div>
-    {% else %}
+    {% elif photo.user == request.user %}
     <div class="main-photo mt-2" style="height: 100%; width:70%">
-
         <div style="height: 90%; position: relative;">
             <img style="width: 100%; height: 100%;" src="{{photo.image.url}}" class="card-img-top img-fluid rounded"
-                alt="...">
+                alt="{{photo.category}}" id="myImg">
         </div>
         <div style="height: 5%;" class="d-flex justify-content-center align-items-center">
-            {%if photo.user == request.user %}
-            <a type="button" name="edit-info-btn" href="{% url 'edit' photo.id %}"
-                style="border: none; background:transparent;color: #000;">Edit
-                <i class="fa-solid fa-pen-to-square fa-xl ms-2" style="color: #005eff;"></i>
+            <a class="d-flex justify-content-center align-items-center" type="button" name="edit-info-btn"
+                href="{% url 'edit' photo.id %}"
+                style="border: none; background:transparent;width: 25%;">Edit
+                <i class="fa-solid fa-pen-to-square fa-xl ms-2" "></i>
             </a>
-            {%endif%}
         </div>
     </div>
-    <div class="d-flex justify-content-lg-start align-items-center">
-
-        <div class="user-interact d-flex justify-content-start flex-column m-2 p-3"
-            style="height: fit-content; width: 100%; border: 1px solid black; border-radius: 16px;">
+    <div class="d-flex justify-content-lg-start align-items-center ">
+        <div class=" user-interact d-flex justify-content-start flex-column m-2 p-3"
+            style="height: 100%; width: 100%; border: 1px solid black; border-radius: 16px;">
             <h2>Photo Details</h2>
             <ul class="justify-content-start">
                 <li>Name : </li>
@@ -213,6 +209,72 @@
     </div>
     {%endif%}
 
+
+    <div id="myModal" class="modal">
+        <img class="modal-content" id="img01">
+        <span class="close" >&times;</span>
+        <div id="caption"></div>
+    </div>
 </div>
+{% if request.user_agent.is_pc and photo and request.resolver_match.url_name != 'edit' %}
+<div class=" d-flex justify-content-center flex-column  align-items-center w-100 mt-3" style="height: fit-content;">
+    <h5 class=" me-2">SIMILAR PHOTOS</h5>
+        <i class="fa-solid fa-angle-down fa-2xl"></i>
+
+</div>
+<div class="row pt-2  my-5 global-papa w-100 mx-auto " data-masonry='{"percentPosition": true }'
+    style="margin-left: -0.5rem; margin-right: -0.5rem;">
+    {% for photo in photos %}
+    {% if photo.publicAccess %}
+    <a class="col-6 col-sm-4 col-md-3 col-lg-2 my-2 global-item" href="{% url 'photo' photo.id %}" hx-boost="fadeIn">
+        <div class="card ">
+            <img src="{{photo.image.url}}" class="card-img-top" alt="...">
+            <div class="overlay d-flex justify-content-around align-items-center"
+                style="background: rgba(0, 0, 0, 0.4);">
+                <span class="card-title ">{{ photo.category }}</span>
+                <div class="d-flex justify-content-center align-items-center w-50">
+                    <i class="px-2 fa-solid fa-heart" style="color: #ff0000;"></i>
+                    <span>{{photo.likes.count}}</span>
+                </div>
+            </div>
+        </div>
+    </a>
+
+    {% endif %}
+    {% empty %}
+    <h3>No  Photos yet..</h3>
+    {% endfor%}
+
+
+    <div class="d-flex justify-content-center pb-5" hx-get="{% url 'photo' photo.id %}?page={{page|add:1}}"
+        hx-trigger="revealed" hx-target="this" hx-swap="outerHTML">
+        <div class="spinner-border " role="status">
+            <span class="sr-only"></span>
+        </div>
+    </div>
+</div>
+{% endif %}
+<script>
+    // Get the modal
+    var modal = document.getElementById("myModal");
+
+    // Get the image and insert it inside the modal - use its "alt" text as a caption
+    var img = document.getElementById("myImg");
+    var modalImg = document.getElementById("img01");
+    var captionText = document.getElementById("caption");
+    img.onclick = function () {
+        modal.style.display = "block";
+        modalImg.src = this.src;
+        captionText.innerHTML = this.alt;
+    }
+
+    // Get the <span> element that closes the modal
+    var span = document.getElementsByClassName("close")[0];
+
+    // When the user clicks on <span> (x), close the modal
+    span.onclick = function () {
+        modal.style.display = "none";
+    }
+</script>
 
 {% endblock content %}
