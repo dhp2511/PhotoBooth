@@ -103,8 +103,12 @@ TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
         "DIRS": [
+            os.path.join(BASE_DIR, "templates"),
             os.path.join(BASE_DIR, "photos/templates/photos"),
+            os.path.join(BASE_DIR, "photos/templates/email_verification"),
             os.path.join(BASE_DIR, "photos/templates/socialaccount"),
+            os.path.join(BASE_DIR, "users/templates/users"),
+
         ],
         "APP_DIRS": True,
         "OPTIONS": {
