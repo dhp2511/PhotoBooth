@@ -9,6 +9,7 @@ handler404 = page_not_found
 
 urlpatterns = [
     path("", views.global_view, name="global"),
+    path("status/", views.server_status, name="server_status"),
     path("login/", views.loginUser, name="login"),
     path('user/login/', views.loginUser, name='login'),
     path("logout/", views.logoutUser, name="logout"),

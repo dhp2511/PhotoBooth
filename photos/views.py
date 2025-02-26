@@ -19,6 +19,8 @@ from django.template import RequestContext
 
 User = get_user_model()
 
+def server_status(request):
+    return JsonResponse({"status": "Server is running"}, status=200)
 
 def loginUser(request):
     if request.user.is_authenticated:
