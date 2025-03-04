@@ -56,8 +56,8 @@ else:
             "CONN_MAX_AGE": 600,
         }
     }
-    ALLOWED_HOSTS = ["photobooth-mw5r.onrender.com"]
-    CSRF_TRUSTED_ORIGINS = ["https://photobooth-mw5r.onrender.com"]
+    ALLOWED_HOSTS = ["photobooth-bocp.onrender.com"]
+    CSRF_TRUSTED_ORIGINS = ["https://photobooth-bocp.onrender.com"]
 
 AUTH_USER_MODEL = "users.User"
 # Application definition
