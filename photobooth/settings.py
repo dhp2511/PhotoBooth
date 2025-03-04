@@ -44,7 +44,7 @@ if DJANGO_ENV == "dev":
     ALLOWED_HOSTS = ["127.0.0.1", "localhost"]
     CSRF_TRUSTED_ORIGINS = ["http://127.0.0.1", "http://localhost"]
 else:
-    DEBUG = False
+    DEBUG = True
     DATABASES = {
         "default": {
             "ENGINE": "django.db.backends.postgresql",
